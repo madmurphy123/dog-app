@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kenny's Day — Icon Assets</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Hanken+Grotesk:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  :root{ --paper:oklch(0.957 0.022 52); --card:oklch(0.992 0.008 60); --ink:oklch(0.34 0.045 350);
+    --soft:oklch(0.5 0.04 350); --faint:oklch(0.63 0.03 350); --line:oklch(0.4 0.05 350/.12);
+    --plum:oklch(0.405 0.058 350); --coral:oklch(0.66 0.115 15); }
+  *{box-sizing:border-box;} body{margin:0;background:var(--paper);color:var(--ink);font-family:'Hanken Grotesk',sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1000px;margin:0 auto;padding:56px 32px 100px;}
+  .eyebrow{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);}
+  h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;letter-spacing:-.02em;margin:12px 0 0;font-size:38px;}
+  h2{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:20px;margin:0 0 4px;}
+  p{color:var(--soft);line-height:1.5;}
+  .sec{margin-top:56px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:28px;}
+  .ramp{display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-top:22px;}
+  .ramp figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:10px;}
+  .ramp img{border-radius:22.37%;box-shadow:0 8px 20px oklch(0.32 0.05 350/.16);display:block;}
+  .ramp .px{font-family:'Space Mono',monospace;font-size:10.5px;color:var(--faint);}
+  .marks{display:flex;gap:18px;flex-wrap:wrap;margin-top:22px;}
+  .swatch{display:flex;flex-direction:column;align-items:center;gap:10px;}
+  .tile{width:120px;height:120px;border-radius:26px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px oklch(0.32 0.05 350/.14);}
+  .tile svg{width:62%;height:62%;}
+  .tile.plumbg{background:var(--plum);} .tile.creambg{background:oklch(0.972 0.014 64);border:1px solid var(--line);}
+  .tile.gradbg{background:linear-gradient(150deg,#EDAF74,#D86F62 52%,#683E52);}
+  .swatch .nm{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.05em;color:var(--soft);text-transform:uppercase;}
+  .files{font-family:'Space Mono',monospace;font-size:12.5px;color:var(--soft);line-height:1.9;margin-top:8px;}
+  .files b{color:var(--ink);font-weight:700;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Kenny's Day · Icon assets</div>
+    <h1>Companion, ready to drop in.</h1>
+    <p style="max-width:54ch;">The full iOS icon set plus the transparent in-app mark. Everything below is in the <b style="font-family:'Space Mono',monospace;">app-icons/</b> folder.</p>
+  </header>
+
+  <section class="sec card">
+    <div class="eyebrow" style="color:var(--coral);">App icon · size ramp</div>
+    <h2>AppIcon.appiconset</h2>
+    <p style="margin:0;font-size:14px;">Square &amp; opaque — iOS rounds them. Drop the set straight into Xcode.</p>
+    <div class="ramp">
+      <figure><img src="AppIcon.appiconset/icon-180.png" width="120" height="120"/><span class="px">180 · @3x</span></figure>
+      <figure><img src="AppIcon.appiconset/icon-120.png" width="92" height="92"/><span class="px">120 · @2x</span></figure>
+      <figure><img src="AppIcon.appiconset/icon-87.png" width="68" height="68"/><span class="px">87 · settings</span></figure>
+      <figure><img src="AppIcon.appiconset/icon-60.png" width="48" height="48"/><span class="px">60 · spotlight</span></figure>
+      <figure><img src="AppIcon.appiconset/icon-40.png" width="34" height="34"/><span class="px">40 · notify</span></figure>
+    </div>
+  </section>
+
+  <section class="sec card">
+    <div class="eyebrow" style="color:var(--coral);">In-app mark · transparent SVG</div>
+    <h2>kenny-mark.svg</h2>
+    <p style="margin:0 0 4px;font-size:14px;">One file, <b style="font-family:'Space Mono',monospace;">currentColor</b> body — colour it from CSS. Pre-filled cream &amp; plum versions included.</p>
+    <div class="marks">
+      <div class="swatch"><div class="tile plumbg" style="color:#FBF2E7;" id="m1"></div><span class="nm">currentColor · cream</span></div>
+      <div class="swatch"><div class="tile creambg" style="color:#5A3147;" id="m2"></div><span class="nm">currentColor · plum</span></div>
+      <div class="swatch"><div class="tile gradbg" style="color:#FBF2E7;" id="m3"></div><span class="nm">on the brand gradient</span></div>
+    </div>
+  </section>
+
+  <section class="sec card">
+    <div class="eyebrow" style="color:var(--coral);">What's in the folder</div>
+    <div class="files">
+      <b>AppIcon.appiconset/</b> — 15 PNGs + Contents.json (Xcode-ready)<br/>
+      <b>kenny-mark.svg</b> — in-app dog, currentColor<br/>
+      <b>kenny-mark-cream.svg</b> · <b>kenny-mark-plum.svg</b> — pre-filled<br/>
+      <b>kenny-icon.svg</b> — rounded full-colour (favicon / marketing)<br/>
+      <b>kenny-icon-square.svg</b> — square vector master<br/>
+      <b>README.md</b> — usage notes
+    </div>
+  </section>
+</div>
+<script>
+async function inject(id, color){
+  const r = await fetch('kenny-mark.svg'); let s = await r.text();
+  document.getElementById(id).innerHTML = s;
+}
+inject('m1'); inject('m2'); inject('m3');
+</script>
+</body>
+</html>
