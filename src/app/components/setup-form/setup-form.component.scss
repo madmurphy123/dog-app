@@ -46,12 +46,12 @@
 }
 
 .window {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: flex;
   align-items: center;
   gap: 10px;
 
   .kd-input {
+    flex: 1 1 0;
     min-width: 0;
   }
 }

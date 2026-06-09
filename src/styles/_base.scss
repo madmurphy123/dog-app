@@ -137,6 +137,10 @@ body {
   border-radius: var(--r-md);
   padding: 12px 14px;
   width: 100%;
+  min-width: 0;
+  /* iOS Safari centres date/time input values by default — keep them left so
+     adjacent time fields don't cluster toward the middle. */
+  text-align: left;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
   &:focus {
