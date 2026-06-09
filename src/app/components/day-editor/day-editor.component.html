@@ -1,0 +1,94 @@
+<div class="editor kd-card">
+  <ng-container *ngIf="schedule$ | async as schedule">
+    <!-- skip routine items for today -->
+    <div class="section" *ngIf="schedule.events.length || schedule.walks.length">
+      <div class="kd-eyebrow sec-label">From your routine — tap to skip today</div>
+      <button
+        type="button"
+        class="routine-row"
+        *ngFor="let it of schedule.events; trackBy: trackByRowId"
+        [class.skipped]="it.skipped"
+        (click)="toggleSkip(it.row.id)"
+      >
+        <app-icon name="clock" [size]="16" color="var(--ink-faint)" [stroke]="2.2"></app-icon>
+        <span class="r-text">
+          <span class="r-title">{{ it.row.label || 'Commitment' }}</span>
+          <span class="r-meta kd-mono">{{ it.row.start }}–{{ it.row.end }}</span>
+        </span>
+        <span class="skip-tag" [class.on]="it.skipped">{{ it.skipped ? 'Skipped' : 'Skip' }}</span>
+      </button>
+      <button
+        type="button"
+        class="routine-row"
+        *ngFor="let it of schedule.walks; trackBy: trackByRowId"
+        [class.skipped]="it.skipped"
+        (click)="toggleSkip(it.row.id)"
+      >
+        <app-icon name="walk" [size]="16" color="var(--walk)" [stroke]="2.2"></app-icon>
+        <span class="r-text">
+          <span class="r-title">Walk</span>
+          <span class="r-meta kd-mono">{{ it.row.time }} · {{ it.row.duration }}m</span>
+        </span>
+        <span class="skip-tag" [class.on]="it.skipped">{{ it.skipped ? 'Skipped' : 'Skip' }}</span>
+      </button>
+    </div>
+
+    <!-- one-offs just for today -->
+    <form class="section" [formGroup]="form">
+      <div class="kd-eyebrow sec-label">Just for today</div>
+
+      <div formArrayName="events">
+        <div
+          class="oneoff-row"
+          *ngFor="let group of events.controls; let i = index; trackBy: trackById"
+          [formGroupName]="i"
+        >
+          <div class="oneoff-top">
+            <input type="time" class="kd-input kd-mono time" formControlName="start" aria-label="One-off start" />
+            <span class="to">–</span>
+            <input type="time" class="kd-input kd-mono time" formControlName="end" aria-label="One-off end" />
+            <button type="button" class="kd-btn icon-btn" (click)="removeEvent(i)" aria-label="Remove">
+              <app-icon name="trash" [size]="17" [stroke]="2"></app-icon>
+            </button>
+          </div>
+          <input type="text" class="kd-input" formControlName="label" placeholder="What is it? e.g. Vet" aria-label="One-off label" />
+        </div>
+      </div>
+
+      <div formArrayName="walks">
+        <div
+          class="oneoff-row"
+          *ngFor="let group of walks.controls; let i = index; trackBy: trackById"
+          [formGroupName]="i"
+        >
+          <div class="oneoff-top">
+            <app-icon name="walk" [size]="16" color="var(--walk)" [stroke]="2.2"></app-icon>
+            <input type="time" class="kd-input kd-mono time" formControlName="time" aria-label="One-off walk time" />
+            <button type="button" class="kd-btn icon-btn" (click)="removeWalk(i)" aria-label="Remove walk">
+              <app-icon name="trash" [size]="17" [stroke]="2"></app-icon>
+            </button>
+          </div>
+          <div class="durations" role="group" aria-label="Walk length">
+            <span class="dur-label">For</span>
+            <button
+              type="button"
+              class="dur-chip"
+              *ngFor="let d of durations"
+              [class.on]="group.controls.duration.value === d"
+              (click)="setDuration(group.controls.duration, d)"
+            >{{ d }}m</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="add-row">
+        <button type="button" class="kd-btn kd-btn-ghost" (click)="addEvent()">
+          <app-icon name="plus" [size]="16" [stroke]="2.4"></app-icon> Commitment
+        </button>
+        <button type="button" class="kd-btn kd-btn-ghost" (click)="addWalk()">
+          <app-icon name="plus" [size]="16" [stroke]="2.4"></app-icon> Walk
+        </button>
+      </div>
+    </form>
+  </ng-container>
+</div>

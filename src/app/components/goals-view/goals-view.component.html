@@ -1,0 +1,33 @@
+<div class="goals" *ngIf="vm$ | async as goals">
+  <div class="kd-card intro">
+    <span class="intro-icon"><app-icon name="target" [size]="22" color="var(--goal)" [stroke]="2.2"></app-icon></span>
+    <div class="intro-body">
+      <div class="kd-display intro-title">Training goals</div>
+      <div class="intro-sub">Switch one on and its next step gets woven into your dog's days.</div>
+    </div>
+  </div>
+
+  <div class="goal-card kd-card" *ngFor="let g of goals; trackBy: trackById" [class.active]="g.active">
+    <button type="button" class="goal-head" (click)="toggle(g.id)" [attr.aria-pressed]="g.active">
+      <span class="goal-text">
+        <span class="kd-display goal-title">{{ g.title }}</span>
+        <span class="goal-why">{{ g.why }}</span>
+      </span>
+      <span class="switch" [class.on]="g.active" aria-hidden="true"><span class="knob"></span></span>
+    </button>
+
+    <div class="progress" *ngIf="g.active">
+      <div class="bar"><span class="fill" [style.width.%]="g.percent"></span></div>
+      <div class="prog-row">
+        <span class="prog-label" *ngIf="!g.complete">Step {{ g.stepIndex + 1 }} of {{ g.total }}</span>
+        <span class="prog-label done" *ngIf="g.complete">Completed 🎉</span>
+        <button type="button" class="reset" (click)="reset(g.id)">Reset</button>
+      </div>
+
+      <div class="current" *ngIf="!g.complete">
+        <div class="cur-title">Next: {{ g.stepTitle }}</div>
+        <div class="cur-done">Nailed it when {{ g.stepDone }}</div>
+      </div>
+    </div>
+  </div>
+</div>
