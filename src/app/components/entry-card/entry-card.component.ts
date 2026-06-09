@@ -10,8 +10,12 @@ interface EntryVm {
   item: TimelineItem;
   meta: EntryMeta;
   kind: TimelineItem['type'];
+  isGame: boolean;
   arousal: Arousal | null;
   tasks: string[] | null;
+  minutes: number | null;
+  equipment: string[];
+  variation: string | null;
 }
 
 /** Rich card for a single timeline entry (walk / game / treat / care). */
@@ -28,6 +32,7 @@ export class EntryCardComponent {
   @Input() done = false;
   @Input() showAction = true;
   @Output() toggleDone = new EventEmitter<void>();
+  @Output() swap = new EventEmitter<void>();
 
   get vm(): EntryVm | null {
     const item = this.item;
@@ -36,8 +41,12 @@ export class EntryCardComponent {
       item,
       meta: entryMeta(item),
       kind: item.type,
+      isGame: item.type === 'game',
       arousal: item.type === 'game' ? item.arousal : null,
-      tasks: item.type === 'walk' ? item.tasks : null
+      tasks: item.type === 'walk' ? item.tasks : null,
+      minutes: item.type === 'game' ? item.minutes : item.type === 'walk' ? item.minutes : null,
+      equipment: item.type === 'game' ? item.equipment : [],
+      variation: item.type === 'game' ? item.variation ?? null : null
     };
   }
 

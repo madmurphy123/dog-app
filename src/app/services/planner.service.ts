@@ -4,13 +4,16 @@ import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
 import { distinctUntilChanged, map, shareReplay } from 'rxjs/operators';
 
 import {
+  GameItem,
   ShoppingItem,
   TimelineItem,
   buildDogDay,
-  buildShoppingList
+  buildShoppingList,
+  pickDailyNote,
+  swapGame
 } from '../engine/engagement-engine';
-import { EventRow, FormState, PushReminder, TabId, WalkRow, WeekDay } from '../models/app.models';
-import { isoOf, mondayOf, todayISO } from '../util/date.util';
+import { ALL_DAYS, EventRow, FormState, PushReminder, TabId, WalkRow, WeekDay } from '../models/app.models';
+import { isoOf, mondayOf, todayISO, weekdayIndex } from '../util/date.util';
 import { withDogName } from '../util/dog-name.util';
 import { itemKey } from '../util/item-key.util';
 import { loadJson, saveJson } from '../util/storage.util';
@@ -36,6 +39,19 @@ function isConfigured(form: FormState): boolean {
   return form.events.length > 0 || form.walks.length > 0;
 }
 
+/** Backfill recurrence/duration on data saved before the recurring-routine model. */
+function normalizeForm(form: FormState): FormState {
+  return {
+    ...form,
+    events: (form.events ?? []).map((e) => ({ ...e, days: e.days ?? [...ALL_DAYS] })),
+    walks: (form.walks ?? []).map((w) => ({
+      ...w,
+      days: w.days ?? [...ALL_DAYS],
+      duration: w.duration && w.duration > 0 ? w.duration : 30
+    }))
+  };
+}
+
 function uid(): string {
   return Math.random().toString(36).slice(2, 8);
 }
@@ -54,7 +70,9 @@ export class PlannerService {
   private readonly destroyRef = inject(DestroyRef);
   private readonly profile = inject(ProfileService);
 
-  private readonly formSubject = new BehaviorSubject<FormState>(loadJson('form', defaultForm()));
+  private readonly formSubject = new BehaviorSubject<FormState>(
+    normalizeForm(loadJson('form', defaultForm()))
+  );
   private readonly tabSubject = new BehaviorSubject<TabId>(this.loadTab());
   private readonly ownedKitSubject = new BehaviorSubject<Set<string>>(
     new Set(loadJson('kit', DEFAULT_KIT))
@@ -63,6 +81,8 @@ export class PlannerService {
     new Set(loadJson<string[]>('done', []))
   );
   private readonly nonceSubject = new BehaviorSubject<number>(0);
+  // Per-slot reshuffle counts, keyed by the slot's time. Reset each new day.
+  private readonly swapsSubject = new BehaviorSubject<Record<string, number>>({});
 
   readonly form$: Observable<FormState> = this.formSubject.asObservable();
   readonly activeTab$: Observable<TabId> = this.tabSubject.asObservable();
@@ -98,10 +118,13 @@ export class PlannerService {
     this.formSubject,
     this.nonceSubject,
     this.ownedKitSubject,
+    this.swapsSubject,
     this.profile.name$
   ])
     .pipe(
-      map(([form, nonce, owned, name]) => this.nameItems(this.rawPlan(form, nonce, owned), name)),
+      map(([form, nonce, owned, swaps, name]) =>
+        this.nameItems(this.applySwaps(this.rawPlan(form, nonce, owned), form, owned, swaps), name)
+      ),
       shareReplay({ bufferSize: 1, refCount: false })
     );
 
@@ -115,6 +138,14 @@ export class PlannerService {
     .pipe(
       map((plan) => plan.some((i) => i.type === 'treat')),
       distinctUntilChanged()
+    );
+
+  /** A nice non-task thing to do for the dog today (name-substituted). */
+  readonly dailyNote$: Observable<string> = combineLatest([this.formSubject, this.profile.name$])
+    .pipe(
+      map(([form, name]) => withDogName(pickDailyNote(form.date), name)),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: false })
     );
 
   /** The 7 days of the week containing the active date, each with a mini plan. */
@@ -162,13 +193,23 @@ export class PlannerService {
   reshuffle(): void {
     this.nonceSubject.next(this.nonceSubject.value + 1);
     this.doneSetSubject.next(new Set());
+    this.swapsSubject.next({});
   }
 
   openDay(iso: string): void {
     this.patchForm({ date: iso });
     this.nonceSubject.next(0);
     this.doneSetSubject.next(new Set());
+    this.swapsSubject.next({});
     this.tabSubject.next('today');
+  }
+
+  /** Reshuffle a single game slot to a fresh, unused activity. */
+  swapItem(item: TimelineItem): void {
+    if (item.type !== 'game') return;
+    const swaps = { ...this.swapsSubject.value };
+    swaps[item.time] = (swaps[item.time] ?? 0) + 1;
+    this.swapsSubject.next(swaps);
   }
 
   patchForm(patch: Partial<FormState>): void {
@@ -178,7 +219,7 @@ export class PlannerService {
   addEvent(): void {
     const events = [
       ...this.formSubject.value.events,
-      { id: uid(), start: '11:00', end: '12:00', label: '' }
+      { id: uid(), start: '11:00', end: '12:00', label: '', days: [...ALL_DAYS] }
     ];
     this.patchForm({ events });
   }
@@ -195,7 +236,9 @@ export class PlannerService {
   addWalk(time: string): void {
     const walks = this.formSubject.value.walks;
     if (walks.some((w) => w.time === time)) return;
-    const next: WalkRow[] = [...walks, { id: uid(), time }].sort((a, b) => a.time.localeCompare(b.time));
+    const next: WalkRow[] = [...walks, { id: uid(), time, duration: 30, days: [...ALL_DAYS] }].sort(
+      (a, b) => a.time.localeCompare(b.time)
+    );
     this.patchForm({ walks: next });
   }
 
@@ -243,12 +286,25 @@ export class PlannerService {
     this.ownedKitSubject.next(set);
   }
 
+  /** Commitments active on a given date (by weekday recurrence). */
+  private eventsForDate(form: FormState, iso: string): EventRow[] {
+    const wd = weekdayIndex(iso);
+    return form.events.filter((e) => e.start && e.end && (e.days ?? ALL_DAYS).includes(wd));
+  }
+
+  /** Walks active on a given date (by weekday recurrence). */
+  private walksForDate(form: FormState, iso: string): WalkRow[] {
+    const wd = weekdayIndex(iso);
+    return form.walks.filter((w) => (w.days ?? ALL_DAYS).includes(wd));
+  }
+
   private rawPlan(form: FormState, nonce: number, owned: Set<string>): TimelineItem[] {
     if (!isConfigured(form)) return [];
+    const iso = form.date;
     return buildDogDay({
-      date: form.date + (nonce ? '~' + nonce : ''),
-      events: form.events.filter((e) => e.start && e.end),
-      walks: form.walks.map((w) => w.time),
+      date: iso + (nonce ? '~' + nonce : ''),
+      events: this.eventsForDate(form, iso).map((e) => ({ start: e.start, end: e.end, label: e.label })),
+      walks: this.walksForDate(form, iso).map((w) => ({ time: w.time, minutes: w.duration })),
       dayStart: form.dayStart,
       dayEnd: form.dayEnd,
       owned: [...owned],
@@ -266,12 +322,49 @@ export class PlannerService {
           tasks: item.tasks.map((t) => withDogName(t, name))
         };
       }
+      if (item.type === 'game') {
+        return {
+          ...item,
+          title: withDogName(item.title, name),
+          detail: withDogName(item.detail, name),
+          variation: item.variation ? withDogName(item.variation, name) : undefined
+        };
+      }
       return {
         ...item,
         title: withDogName(item.title, name),
         detail: withDogName(item.detail, name)
       };
     });
+  }
+
+  /** Apply per-slot reshuffles, keeping every activity in the day distinct. */
+  private applySwaps(
+    plan: TimelineItem[],
+    form: FormState,
+    owned: Set<string>,
+    swaps: Record<string, number>
+  ): TimelineItem[] {
+    if (!Object.keys(swaps).length) return plan;
+    const result: TimelineItem[] = [...plan];
+    const used = new Set(
+      result.filter((i): i is GameItem => i.type === 'game').map((i) => i.gameId)
+    );
+    for (let idx = 0; idx < result.length; idx++) {
+      const item = result[idx];
+      if (item.type !== 'game') continue;
+      const count = swaps[item.time];
+      if (!count) continue;
+      used.delete(item.gameId);
+      const fields = swapGame({
+        seed: `${form.date}|swap|${item.time}|${count}`,
+        owned: [...owned],
+        excludeIds: [...used, item.gameId]
+      });
+      used.add(fields.gameId);
+      result[idx] = { ...item, ...fields };
+    }
+    return result;
   }
 
   /**
@@ -285,8 +378,6 @@ export class PlannerService {
 
     const owned = [...this.ownedKitSubject.value];
     const name = this.profile.snapshot.name;
-    const events = form.events.filter((e) => e.start && e.end);
-    const walks = form.walks.map((w) => w.time);
     const now = Date.now();
     const midnight = new Date();
     midnight.setHours(0, 0, 0, 0);
@@ -301,8 +392,8 @@ export class PlannerService {
       const items = this.nameItems(
         buildDogDay({
           date: iso,
-          events,
-          walks,
+          events: this.eventsForDate(form, iso).map((e) => ({ start: e.start, end: e.end, label: e.label })),
+          walks: this.walksForDate(form, iso).map((w) => ({ time: w.time, minutes: w.duration })),
           dayStart: form.dayStart,
           dayEnd: form.dayEnd,
           owned,
@@ -323,8 +414,6 @@ export class PlannerService {
     const mon = mondayOf(form.date);
     const today = todayISO();
     const configured = isConfigured(form);
-    const events = form.events.filter((e) => e.start && e.end);
-    const walks = form.walks.map((w) => w.time);
     const ownedList = [...owned];
 
     return Array.from({ length: 7 }, (_, i) => {
@@ -338,8 +427,8 @@ export class PlannerService {
           : this.nameItems(
               buildDogDay({
                 date: iso,
-                events,
-                walks,
+                events: this.eventsForDate(form, iso).map((e) => ({ start: e.start, end: e.end, label: e.label })),
+                walks: this.walksForDate(form, iso).map((w) => ({ time: w.time, minutes: w.duration })),
                 dayStart: form.dayStart,
                 dayEnd: form.dayEnd,
                 owned: ownedList,
@@ -363,6 +452,7 @@ export class PlannerService {
   private nameShopping(list: ShoppingItem[], name: string): ShoppingItem[] {
     return list.map((s) => ({
       ...s,
+      why: withDogName(s.why, name),
       unlocks: s.unlocks.map((u) => withDogName(u, name))
     }));
   }

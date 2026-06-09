@@ -38,26 +38,54 @@
 
       <ng-template #timeline>
       <div class="day">
-        <div class="banner treat kd-card" *ngIf="vm.hasTreat">
-          <app-icon name="gift" [size]="18" color="var(--treat)" [stroke]="2.1"></app-icon>
-          <span>Treat day — there’s a little surprise in the mix.</span>
-        </div>
+        <section class="summary kd-card">
+          <div class="summary-head">
+            <span class="kd-eyebrow summary-title">Your day</span>
+            <div class="summary-chips">
+              <span class="chip neutral"><app-icon name="paw" [size]="14" color="var(--plum)"></app-icon> {{ vm.nGames }} games</span>
+              <span class="chip walk"><app-icon name="walk" [size]="14" color="var(--walk)"></app-icon> {{ vm.nWalks }} walks</span>
+              <button
+                type="button"
+                class="chip bell"
+                [class.on]="vm.reminders"
+                (click)="toggleReminders()"
+                [attr.aria-label]="vm.reminders ? 'Reminders on — tap to turn off' : 'Reminders off — tap to turn on'"
+                [attr.aria-pressed]="vm.reminders"
+              >
+                <app-icon [name]="vm.reminders ? 'bell' : 'bellOff'" [size]="15" [stroke]="2.2"></app-icon>
+              </button>
+            </div>
+          </div>
 
-        <div class="headline">
-          <span class="chip neutral"><app-icon name="paw" [size]="14" color="var(--plum)"></app-icon> {{ vm.nGames }} games</span>
-          <span class="chip walk"><app-icon name="walk" [size]="14" color="var(--walk)"></app-icon> {{ vm.nWalks }} walks</span>
-          <button
-            type="button"
-            class="chip bell"
-            [class.on]="vm.reminders"
-            (click)="toggleReminders()"
-            aria-label="Toggle reminders"
-            [attr.aria-pressed]="vm.reminders"
-          >
-            <app-icon [name]="vm.reminders ? 'bell' : 'bellOff'" [size]="14" [stroke]="2.2"></app-icon>
-            {{ vm.reminders ? 'Reminders on' : 'Reminders off' }}
-          </button>
-        </div>
+          <div class="summary-note" *ngIf="vm.dailyNote">
+            <app-icon name="sparkle" [size]="16" color="var(--low)" [stroke]="2.2"></app-icon>
+            <p class="note-text"><span class="note-label">A little extra ·</span> {{ vm.dailyNote }}</p>
+          </div>
+
+          <div class="summary-extras" *ngIf="vm.extras.length">
+            <div class="kd-eyebrow extras-label">Don’t forget</div>
+            <div class="extras-list">
+              <button
+                type="button"
+                class="extra-row"
+                *ngFor="let d of vm.extras; trackBy: trackByKey"
+                [class.is-treat]="d.item.type === 'treat'"
+                [class.is-care]="d.item.type === 'care'"
+                [class.done]="d.done"
+                (click)="toggleDone(d.item)"
+              >
+                <span class="extra-icon">
+                  <app-icon [name]="d.item.type === 'treat' ? 'gift' : 'droplet'" [size]="17" color="var(--accent)" [stroke]="2.1"></app-icon>
+                </span>
+                <span class="extra-text">
+                  <span class="extra-title">{{ d.item.title }}</span>
+                  <span class="extra-detail">{{ d.item.detail }}</span>
+                </span>
+                <span class="extra-time kd-mono">{{ d.item.time }}</span>
+              </button>
+            </div>
+          </div>
+        </section>
 
         <div class="up-next" *ngIf="vm.firstPending as next">
           <div class="kd-eyebrow up-next-label">
@@ -67,6 +95,7 @@
             [item]="next.item"
             [done]="next.done"
             (toggleDone)="toggleDone(next.item)"
+            (swap)="swapItem(next.item)"
           ></app-entry-card>
         </div>
 

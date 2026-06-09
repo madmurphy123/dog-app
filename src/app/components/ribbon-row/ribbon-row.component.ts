@@ -41,6 +41,6 @@ export class RibbonRowComponent {
     if (item.type === 'walk') return 'Walk · sniff & stroll';
     if (item.type === 'treat') return TREAT_LABEL[item.treatKind];
     if (item.type === 'care') return 'Care reminder';
-    return AROUSAL[item.arousal].label;
+    return `${AROUSAL[item.arousal].label} · ~${item.minutes}m`;
   }
 }

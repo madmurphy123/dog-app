@@ -21,6 +21,15 @@
     <div class="text">
       <h3 class="kd-display title" [class.struck]="done">{{ v.item.title }}</h3>
       <p class="detail">{{ v.item.detail }}</p>
+
+      <div class="chips" *ngIf="v.minutes || v.equipment.length">
+        <span class="chip time-chip" *ngIf="v.minutes">
+          <app-icon name="clock" [size]="13" color="var(--accent)" [stroke]="2.2"></app-icon> ~{{ v.minutes }} min
+        </span>
+        <span class="chip kit-chip" *ngFor="let e of v.equipment; trackBy: trackByIndex">{{ e }}</span>
+      </div>
+
+      <p class="twist" *ngIf="v.variation"><span class="twist-label">Twist</span> {{ v.variation }}</p>
     </div>
   </div>
 
@@ -31,14 +40,13 @@
     </li>
   </ul>
 
-  <button
-    type="button"
-    class="kd-btn action"
-    *ngIf="showAction"
-    [class.is-done]="done"
-    (click)="toggleDone.emit()"
-  >
-    <app-icon name="check" [size]="16" [stroke]="2.4"></app-icon>
-    {{ done ? 'Done' : 'Mark as done' }}
-  </button>
+  <div class="actions" *ngIf="showAction">
+    <button type="button" class="kd-btn mark" [class.is-done]="done" (click)="toggleDone.emit()">
+      <app-icon name="check" [size]="16" [stroke]="2.4"></app-icon>
+      {{ done ? 'Done' : 'Mark as done' }}
+    </button>
+    <button type="button" class="kd-btn swap" *ngIf="v.isGame" (click)="swap.emit()" aria-label="Swap this activity">
+      <app-icon name="shuffle" [size]="16" [stroke]="2.2"></app-icon>
+    </button>
+  </div>
 </article>

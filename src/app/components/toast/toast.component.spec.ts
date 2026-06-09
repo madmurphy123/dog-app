@@ -10,7 +10,9 @@ const GAME: GameItem = {
   detail: 'Two minutes of tug.',
   arousal: 'high',
   category: 'engagement',
-  gameId: 'tug-rules'
+  gameId: 'tug-rules',
+  minutes: 5,
+  equipment: ['Tug toy']
 };
 
 describe('ToastComponent', () => {

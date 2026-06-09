@@ -10,7 +10,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime } from 'rxjs/operators';
 
-import { EventRow, WalkRow } from '../../models/app.models';
+import { ALL_DAYS, DAY_LABELS, EventRow, WalkRow } from '../../models/app.models';
 import { PlannerService } from '../../services/planner.service';
 import { IconComponent } from '../icon/icon.component';
 import { ProfileCardComponent } from '../profile-card/profile-card.component';
@@ -21,11 +21,14 @@ type EventGroup = FormGroup<{
   start: FormControl<string>;
   end: FormControl<string>;
   label: FormControl<string>;
+  days: FormControl<number[]>;
 }>;
 
 type WalkGroup = FormGroup<{
   id: FormControl<string>;
   time: FormControl<string>;
+  duration: FormControl<number>;
+  days: FormControl<number[]>;
 }>;
 
 interface SetupControls {
@@ -36,12 +39,15 @@ interface SetupControls {
   walks: FormArray<WalkGroup>;
 }
 
+const DURATIONS: readonly number[] = [15, 30, 45, 60];
+
 function uid(): string {
   return Math.random().toString(36).slice(2, 8);
 }
 
-/** Data-entry view. The reactive form is the editing surface; edits flow to the
-    planner store (the single source of truth) which re-derives everything. */
+/** Data-entry view. Commitments and walks are recurring (which weekdays they
+    happen); the reactive form is the editing surface and edits flow to the
+    planner store, which re-derives every day from the routine. */
 @Component({
   selector: 'app-setup-form',
   standalone: true,
@@ -55,7 +61,8 @@ export class SetupFormComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   protected readonly planner = inject(PlannerService);
 
-  protected readonly newWalk = this.fb.control('08:00');
+  protected readonly dayLabels = DAY_LABELS;
+  protected readonly durations = DURATIONS;
 
   protected readonly form: FormGroup<SetupControls> = this.buildForm();
 
@@ -74,7 +81,9 @@ export class SetupFormComponent implements OnInit {
   }
 
   addEvent(): void {
-    this.events.push(this.eventGroup({ id: uid(), start: '11:00', end: '12:00', label: '' }));
+    this.events.push(
+      this.eventGroup({ id: uid(), start: '11:00', end: '12:00', label: '', days: [...ALL_DAYS] })
+    );
   }
 
   removeEvent(index: number): void {
@@ -82,11 +91,7 @@ export class SetupFormComponent implements OnInit {
   }
 
   addWalk(): void {
-    const time = this.newWalk.value;
-    if (!time) return;
-    if (this.walks.controls.some((g) => g.controls.time.value === time)) return;
-    this.walks.push(this.walkGroup({ id: uid(), time }));
-    this.sortWalks();
+    this.walks.push(this.walkGroup({ id: uid(), time: '08:00', duration: 30, days: [...ALL_DAYS] }));
   }
 
   removeWalk(index: number): void {
@@ -97,8 +102,32 @@ export class SetupFormComponent implements OnInit {
     this.planner.build();
   }
 
+  isDayOn(control: FormControl<number[]>, day: number): boolean {
+    return control.value.includes(day);
+  }
+
+  toggleDay(control: FormControl<number[]>, day: number): void {
+    const set = new Set(control.value);
+    if (set.has(day)) {
+      set.delete(day);
+    } else {
+      set.add(day);
+    }
+    control.setValue([...set].sort((a, b) => a - b));
+    control.markAsDirty();
+  }
+
+  setDuration(control: FormControl<number>, minutes: number): void {
+    control.setValue(minutes);
+    control.markAsDirty();
+  }
+
   trackByControl(index: number, group: { controls: { id: FormControl<string> } }): string {
     return group.controls.id.value;
+  }
+
+  trackByDay(index: number): number {
+    return index;
   }
 
   private sync(): void {
@@ -110,14 +139,6 @@ export class SetupFormComponent implements OnInit {
       events: value.events,
       walks: value.walks
     });
-  }
-
-  private sortWalks(): void {
-    const sorted = [...this.walks.controls].sort((a, b) =>
-      a.controls.time.value.localeCompare(b.controls.time.value)
-    );
-    this.walks.clear();
-    sorted.forEach((g) => this.walks.push(g));
   }
 
   private buildForm(): FormGroup<SetupControls> {
@@ -136,14 +157,17 @@ export class SetupFormComponent implements OnInit {
       id: this.fb.control(e.id),
       start: this.fb.control(e.start),
       end: this.fb.control(e.end),
-      label: this.fb.control(e.label)
+      label: this.fb.control(e.label),
+      days: this.fb.control(e.days ?? [...ALL_DAYS])
     });
   }
 
   private walkGroup(w: WalkRow): WalkGroup {
     return this.fb.group({
       id: this.fb.control(w.id),
-      time: this.fb.control(w.time)
+      time: this.fb.control(w.time),
+      duration: this.fb.control(w.duration ?? 30),
+      days: this.fb.control(w.days ?? [...ALL_DAYS])
     });
   }
 }

@@ -31,7 +31,7 @@ describe('PlannerService', () => {
 
   it('substitutes the dog name into generated content', async () => {
     profile.setName('Rex');
-    service.patchForm({ walks: [{ id: 'w', time: '08:00' }] });
+    service.patchForm({ walks: [{ id: 'w', time: '08:00', duration: 30, days: [0, 1, 2, 3, 4, 5, 6] }] });
 
     const plan = await firstValueFrom(service.plan$);
     const walk = plan.find((i) => i.type === 'walk');
@@ -65,6 +65,21 @@ describe('PlannerService', () => {
 
     const form = await firstValueFrom(service.form$);
     expect(form.walks.map((w) => w.time)).toEqual(['08:30', '17:00']);
+  });
+
+  it('only schedules a recurring walk on its chosen weekdays', async () => {
+    // 2026-06-08 is a Monday (weekday 0); 2026-06-09 is a Tuesday (weekday 1).
+    service.patchForm({
+      date: '2026-06-08',
+      events: [],
+      walks: [{ id: 'w', time: '09:00', duration: 30, days: [0] }]
+    });
+    let plan = await firstValueFrom(service.plan$);
+    expect(plan.some((i) => i.type === 'walk')).toBe(true);
+
+    service.patchForm({ date: '2026-06-09' });
+    plan = await firstValueFrom(service.plan$);
+    expect(plan.some((i) => i.type === 'walk')).toBe(false);
   });
 
   it('openDay sets the date, clears done, and switches to today', async () => {

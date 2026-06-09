@@ -1,6 +1,8 @@
 import {
   buildDogDay,
   buildShoppingList,
+  pickDailyNote,
+  swapGame,
   toMin,
   GAME_CATALOG,
   CARE_TASKS,
@@ -12,7 +14,8 @@ import {
   KitGroup
 } from './engagement-engine';
 
-const WALK_BUFFER = 45;
+const WALK_PRE = 10;
+const WALK_POST = 30;
 
 function baseConfig(date: string): BuildDayConfig {
   return {
@@ -20,7 +23,10 @@ function baseConfig(date: string): BuildDayConfig {
     dayStart: '08:00',
     dayEnd: '21:00',
     events: [{ start: '12:00', end: '13:00', label: 'Lunch' }],
-    walks: ['09:00', '17:00']
+    walks: [
+      { time: '09:00', minutes: 30 },
+      { time: '17:00', minutes: 30 }
+    ]
   };
 }
 
@@ -80,7 +86,9 @@ describe('engagement-engine', () => {
         const cfg = baseConfig(date);
         const plan = buildDogDay(cfg);
         const eventBlocks = (cfg.events ?? []).map((e) => [toMin(e.start), toMin(e.end)] as const);
-        const walkBlocks = (cfg.walks ?? []).map((w) => [toMin(w) - WALK_BUFFER, toMin(w) + WALK_BUFFER] as const);
+        const walkBlocks = (cfg.walks ?? []).map(
+          (w) => [toMin(w.time) - WALK_PRE, toMin(w.time) + (w.minutes ?? 30) + WALK_POST] as const
+        );
 
         for (const g of games(plan)) {
           const at = toMin(g.time);
@@ -188,6 +196,40 @@ describe('engagement-engine', () => {
       for (const name of [...gameKit, ...treatKit, ...careKit]) {
         expect(names.has(name)).toBe(true);
       }
+    });
+  });
+
+  describe('buildDogDay — activity content', () => {
+    it('never repeats the same activity within a day', () => {
+      for (const date of DATES) {
+        const ids = games(buildDogDay(baseConfig(date))).map((g) => g.gameId);
+        expect(new Set(ids).size).toBe(ids.length);
+      }
+    });
+
+    it('gives every game a duration and equipment list', () => {
+      const plan = buildDogDay(baseConfig('2026-06-08'));
+      for (const g of games(plan)) {
+        expect(g.minutes).toBeGreaterThan(0);
+        expect(Array.isArray(g.equipment)).toBe(true);
+      }
+    });
+  });
+
+  describe('swapGame', () => {
+    it('returns a game that is not in the exclude list', () => {
+      const exclude = GAME_CATALOG.slice(0, 5).map((g) => g.id);
+      const swapped = swapGame({ seed: 'x|swap|10:00|1', excludeIds: exclude });
+
+      expect(exclude.includes(swapped.gameId)).toBe(false);
+      expect(swapped.minutes).toBeGreaterThan(0);
+    });
+  });
+
+  describe('pickDailyNote', () => {
+    it('is deterministic per date and non-empty', () => {
+      expect(pickDailyNote('2026-06-08')).toBe(pickDailyNote('2026-06-08'));
+      expect(pickDailyNote('2026-06-08').length).toBeGreaterThan(0);
     });
   });
 });

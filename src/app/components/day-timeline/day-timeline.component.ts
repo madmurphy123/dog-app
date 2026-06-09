@@ -20,16 +20,18 @@ interface DayVm {
   configured: boolean;
   isDayCare: boolean;
   reminders: boolean;
-  hasTreat: boolean;
   displayName: string;
+  dailyNote: string;
   count: number;
   nGames: number;
   nWalks: number;
   firstPending: DecoratedItem | null;
   later: DecoratedItem[];
+  extras: DecoratedItem[];
 }
 
-/** The Today tab: day-care rest state, banners, the "Up next" timeline, reshuffle. */
+/** The Today tab: day-care rest state, daily note, the "Up next" timeline,
+    a care/treat strip, and reshuffle. */
 @Component({
   selector: 'app-day-timeline',
   standalone: true,
@@ -46,14 +48,18 @@ export class DayTimelineComponent {
     this.planner.plan$,
     this.planner.doneSet$,
     this.planner.isDayCare$,
-    this.planner.hasTreat$,
     this.planner.reminders$,
     this.profile.displayName$,
-    this.planner.configured$
+    this.planner.configured$,
+    this.planner.dailyNote$
   ]).pipe(map((parts) => this.buildVm(parts)));
 
   toggleDone(item: TimelineItem): void {
     this.planner.toggleDone(item);
+  }
+
+  swapItem(item: TimelineItem): void {
+    this.planner.swapItem(item);
   }
 
   reshuffle(): void {
@@ -77,29 +83,32 @@ export class DayTimelineComponent {
   }
 
   private buildVm(
-    [items, doneSet, isDayCare, hasTreat, reminders, displayName, configured]: [
+    [items, doneSet, isDayCare, reminders, displayName, configured, dailyNote]: [
       TimelineItem[],
       Set<string>,
       boolean,
       boolean,
-      boolean,
       string,
-      boolean
+      boolean,
+      string
     ]
   ): DayVm {
     const decorated: DecoratedItem[] = items.map((item) => ({ item, done: doneSet.has(itemKey(item)) }));
-    const firstPending = decorated.find((d) => !d.done) ?? null;
+    const main = decorated.filter((d) => d.item.type === 'game' || d.item.type === 'walk');
+    const extras = decorated.filter((d) => d.item.type === 'treat' || d.item.type === 'care');
+    const firstPending = main.find((d) => !d.done) ?? null;
     return {
       configured,
       isDayCare,
-      hasTreat,
       reminders,
       displayName,
+      dailyNote,
       count: items.length,
       nGames: items.filter((i) => i.type === 'game').length,
       nWalks: items.filter((i) => i.type === 'walk').length,
       firstPending,
-      later: decorated.filter((d) => d !== firstPending)
+      later: main.filter((d) => d !== firstPending),
+      extras
     };
   }
 }

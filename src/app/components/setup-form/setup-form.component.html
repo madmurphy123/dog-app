@@ -41,12 +41,26 @@
         *ngFor="let group of events.controls; let i = index; trackBy: trackByControl"
         [formGroupName]="i"
       >
-        <input type="time" class="kd-input kd-mono small" formControlName="start" aria-label="Commitment start" />
-        <input type="time" class="kd-input kd-mono small" formControlName="end" aria-label="Commitment end" />
-        <input type="text" class="kd-input grow" formControlName="label" aria-label="Commitment label" placeholder="Label" />
-        <button type="button" class="kd-btn icon-btn" (click)="removeEvent(i)" aria-label="Remove commitment">
-          <app-icon name="trash" [size]="17" [stroke]="2"></app-icon>
-        </button>
+        <div class="event-top">
+          <input type="time" class="kd-input kd-mono time" formControlName="start" aria-label="Commitment start" />
+          <span class="to">–</span>
+          <input type="time" class="kd-input kd-mono time" formControlName="end" aria-label="Commitment end" />
+          <button type="button" class="kd-btn icon-btn" (click)="removeEvent(i)" aria-label="Remove commitment">
+            <app-icon name="trash" [size]="17" [stroke]="2"></app-icon>
+          </button>
+        </div>
+        <input type="text" class="kd-input" formControlName="label" aria-label="Commitment label" placeholder="What is it? e.g. Standup" />
+        <div class="day-chips" role="group" aria-label="Repeats on">
+          <button
+            type="button"
+            class="day-chip"
+            *ngFor="let label of dayLabels; let di = index; trackBy: trackByDay"
+            [class.on]="isDayOn(group.controls.days, di)"
+            (click)="toggleDay(group.controls.days, di)"
+            [attr.aria-pressed]="isDayOn(group.controls.days, di)"
+            [attr.aria-label]="label"
+          >{{ label }}</button>
+        </div>
       </div>
     </div>
 
@@ -59,29 +73,55 @@
   <section class="kd-card card">
     <div class="field-label">
       <app-icon name="walk" [size]="15" color="var(--ink-faint)" [stroke]="2.2"></app-icon>
-      <span class="kd-eyebrow">Walk times</span>
-      <span class="hint">fixed points in the day</span>
+      <span class="kd-eyebrow">Walks</span>
+      <span class="hint">time · length · days</span>
     </div>
 
-    <div class="chips" *ngIf="walks.length" formArrayName="walks">
-      <span
-        class="chip walk-chip"
+    <p class="empty" *ngIf="walks.length === 0">
+      Add a walk — when it is, how long, and which days it happens.
+    </p>
+
+    <div class="rows" formArrayName="walks">
+      <div
+        class="walk-row"
         *ngFor="let group of walks.controls; let i = index; trackBy: trackByControl"
+        [formGroupName]="i"
       >
-        <app-icon name="walk" [size]="15" color="var(--walk)" [stroke]="2.2"></app-icon>
-        <span class="kd-mono time">{{ group.controls.time.value }}</span>
-        <button type="button" class="kd-btn chip-x" (click)="removeWalk(i)" aria-label="Remove walk">
-          <app-icon name="close" [size]="13" [stroke]="2.6"></app-icon>
-        </button>
-      </span>
+        <div class="walk-top">
+          <app-icon name="walk" [size]="16" color="var(--walk)" [stroke]="2.2"></app-icon>
+          <input type="time" class="kd-input kd-mono time" formControlName="time" aria-label="Walk time" />
+          <button type="button" class="kd-btn icon-btn" (click)="removeWalk(i)" aria-label="Remove walk">
+            <app-icon name="trash" [size]="17" [stroke]="2"></app-icon>
+          </button>
+        </div>
+        <div class="durations" role="group" aria-label="Walk length">
+          <span class="dur-label">For</span>
+          <button
+            type="button"
+            class="dur-chip"
+            *ngFor="let d of durations; trackBy: trackByDay"
+            [class.on]="group.controls.duration.value === d"
+            (click)="setDuration(group.controls.duration, d)"
+            [attr.aria-pressed]="group.controls.duration.value === d"
+          >{{ d }}m</button>
+        </div>
+        <div class="day-chips" role="group" aria-label="Repeats on">
+          <button
+            type="button"
+            class="day-chip"
+            *ngFor="let label of dayLabels; let di = index; trackBy: trackByDay"
+            [class.on]="isDayOn(group.controls.days, di)"
+            (click)="toggleDay(group.controls.days, di)"
+            [attr.aria-pressed]="isDayOn(group.controls.days, di)"
+            [attr.aria-label]="label"
+          >{{ label }}</button>
+        </div>
+      </div>
     </div>
 
-    <div class="add-walk">
-      <input type="time" class="kd-input kd-mono grow" [formControl]="newWalk" aria-label="New walk time" />
-      <button type="button" class="kd-btn kd-btn-ghost" (click)="addWalk()">
-        <app-icon name="plus" [size]="17" [stroke]="2.4"></app-icon> Add walk
-      </button>
-    </div>
+    <button type="button" class="kd-btn kd-btn-ghost full" (click)="addWalk()">
+      <app-icon name="plus" [size]="17" [stroke]="2.4"></app-icon> Add walk
+    </button>
   </section>
 
   <!-- day care -->

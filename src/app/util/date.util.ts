@@ -17,6 +17,11 @@ export function mondayOf(iso: string): Date {
   return d;
 }
 
+/** Weekday index for an ISO date: 0 = Mon … 6 = Sun. */
+export function weekdayIndex(iso: string): number {
+  return (new Date(iso + 'T00:00:00').getDay() + 6) % 7;
+}
+
 export function fmtDate(iso: string): string {
   const d = new Date(iso + 'T00:00:00');
   return d
