@@ -1,0 +1,51 @@
+<div class="push kd-card" *ngIf="vm$ | async as vm">
+  <div class="head">
+    <span class="icon" [class.on]="vm.enabled">
+      <app-icon name="bell" [size]="20" [color]="vm.enabled ? 'var(--high)' : 'var(--ink-faint)'" [stroke]="2.1"></app-icon>
+    </span>
+    <div class="head-text">
+      <div class="kd-display title">Phone alerts</div>
+      <div class="sub">Get nudged on your lock screen, even when the app is closed.</div>
+    </div>
+  </div>
+
+  <!-- not installed / no service worker -->
+  <p class="hint" *ngIf="!vm.supported">
+    Add the app to your home screen and open it from there to switch this on.
+  </p>
+
+  <!-- backend not wired yet -->
+  <p class="hint" *ngIf="vm.supported && !vm.configured">
+    Almost there — the notification server isn’t connected yet.
+  </p>
+
+  <ng-container *ngIf="vm.supported && vm.configured">
+    <button
+      type="button"
+      class="kd-btn kd-btn-primary action"
+      *ngIf="!vm.enabled"
+      [disabled]="vm.busy"
+      (click)="turnOn()"
+    >
+      <app-icon name="bell" [size]="17" color="#fff" [stroke]="2.2"></app-icon>
+      {{ vm.busy ? 'Setting up…' : 'Turn on phone alerts' }}
+    </button>
+
+    <div class="enabled" *ngIf="vm.enabled">
+      <div class="status">
+        <app-icon name="check" [size]="16" color="var(--walk)" [stroke]="2.6"></app-icon>
+        Phone alerts are on
+      </div>
+      <div class="row">
+        <button type="button" class="kd-btn kd-btn-ghost" [disabled]="vm.busy" (click)="test()">
+          <app-icon name="sparkle" [size]="16" [stroke]="2.2"></app-icon>
+          {{ vm.busy ? 'Sending…' : 'Send a test' }}
+        </button>
+        <button type="button" class="off" [disabled]="vm.busy" (click)="turnOff()">Turn off</button>
+      </div>
+      <p class="tested" *ngIf="vm.tested">Test sent — check your lock screen in a moment.</p>
+    </div>
+  </ng-container>
+
+  <p class="error" *ngIf="vm.error">{{ vm.error }}</p>
+</div>

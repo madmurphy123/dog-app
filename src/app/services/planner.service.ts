@@ -9,7 +9,7 @@ import {
   buildDogDay,
   buildShoppingList
 } from '../engine/engagement-engine';
-import { EventRow, FormState, TabId, WalkRow, WeekDay } from '../models/app.models';
+import { EventRow, FormState, PushReminder, TabId, WalkRow, WeekDay } from '../models/app.models';
 import { isoOf, mondayOf, todayISO } from '../util/date.util';
 import { withDogName } from '../util/dog-name.util';
 import { itemKey } from '../util/item-key.util';
@@ -272,6 +272,51 @@ export class PlannerService {
         detail: withDogName(item.detail, name)
       };
     });
+  }
+
+  /**
+   * Flatten the next `days` days of reminders to absolute timestamps for the push
+   * backend. Computing the epoch on the client means the server needs no timezone
+   * logic. Honours the reminders toggle, day-care days, treats, kit and dog name.
+   */
+  upcomingReminders(days: number): PushReminder[] {
+    const form = this.formSubject.value;
+    if (!form.reminders || !isConfigured(form)) return [];
+
+    const owned = [...this.ownedKitSubject.value];
+    const name = this.profile.snapshot.name;
+    const events = form.events.filter((e) => e.start && e.end);
+    const walks = form.walks.map((w) => w.time);
+    const now = Date.now();
+    const midnight = new Date();
+    midnight.setHours(0, 0, 0, 0);
+
+    const out: PushReminder[] = [];
+    for (let i = 0; i < days; i++) {
+      const date = new Date(midnight);
+      date.setDate(midnight.getDate() + i);
+      const iso = isoOf(date);
+      if (form.dayCareDates.includes(iso)) continue;
+
+      const items = this.nameItems(
+        buildDogDay({
+          date: iso,
+          events,
+          walks,
+          dayStart: form.dayStart,
+          dayEnd: form.dayEnd,
+          owned,
+          treats: form.treats
+        }),
+        name
+      );
+      for (const item of items) {
+        const at = new Date(`${iso}T${item.time}:00`).getTime();
+        if (at <= now) continue;
+        out.push({ id: `${at}-${item.title}`, at, title: item.title, body: item.detail });
+      }
+    }
+    return out;
   }
 
   private buildWeek(form: FormState, owned: Set<string>, name: string): WeekDay[] {

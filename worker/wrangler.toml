@@ -1,0 +1,22 @@
+name = "dog-day-push"
+main = "src/index.ts"
+compatibility_date = "2024-11-01"
+
+# Created with: wrangler kv namespace create SUBSCRIBERS
+# Paste the printed id below.
+kv_namespaces = [
+  { binding = "SUBSCRIBERS", id = "c9461974743940fca6d3c2c4c293d11f" }
+]
+
+# Run the scheduler every minute.
+[triggers]
+crons = ["* * * * *"]
+
+[vars]
+VAPID_PUBLIC_KEY = "BOWemmuzA81-oeWK4miIENFuXOQnO0xjsvbgazB7XSkMqEF2rGVyiFKS4iwo4iWQ6BcoeG-fULJfaRJFeXv9eTY"
+VAPID_SUBJECT = "mailto:murphyaaron123@gmail.com"
+ALLOWED_ORIGIN = "https://madmurphy123.github.io"
+APP_ICON_URL = "https://madmurphy123.github.io/dog-app/assets/icons/icon-192x192.png"
+
+# The private key is a SECRET — never put it here. Set it with:
+#   wrangler secret put VAPID_PRIVATE_KEY

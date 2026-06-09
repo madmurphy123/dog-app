@@ -46,3 +46,7 @@ Thumbs.db
 /.playwright-mcp
 serve.log
 crash.log
+
+# Cloudflare Worker (backend lives in /worker, deployed separately)
+worker/node_modules
+worker/.wrangler

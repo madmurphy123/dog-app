@@ -14,6 +14,7 @@ import { EventRow, WalkRow } from '../../models/app.models';
 import { PlannerService } from '../../services/planner.service';
 import { IconComponent } from '../icon/icon.component';
 import { ProfileCardComponent } from '../profile-card/profile-card.component';
+import { PushSetupComponent } from '../push-setup/push-setup.component';
 
 type EventGroup = FormGroup<{
   id: FormControl<string>;
@@ -44,7 +45,7 @@ function uid(): string {
 @Component({
   selector: 'app-setup-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, IconComponent, ProfileCardComponent],
+  imports: [CommonModule, ReactiveFormsModule, IconComponent, ProfileCardComponent, PushSetupComponent],
   templateUrl: './setup-form.component.html',
   styleUrls: ['./setup-form.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

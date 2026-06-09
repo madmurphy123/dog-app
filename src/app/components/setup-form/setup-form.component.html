@@ -134,6 +134,9 @@
     <span class="switch high" [class.on]="planner.reminders$ | async" aria-hidden="true"><span class="knob"></span></span>
   </button>
 
+  <!-- phone alerts (background push) -->
+  <app-push-setup></app-push-setup>
+
   <!-- build -->
   <button type="button" class="kd-btn kd-btn-primary build" (click)="build()">
     <app-icon name="sparkle" [size]="19" color="#fff" [stroke]="2.2"></app-icon> Build the day

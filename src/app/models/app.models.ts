@@ -42,3 +42,11 @@ export interface WeekDay {
   walks: number;
   items: TimelineItem[];
 }
+
+/** A single reminder flattened to an absolute time, for the push backend. */
+export interface PushReminder {
+  id: string;
+  at: number;
+  title: string;
+  body: string;
+}
