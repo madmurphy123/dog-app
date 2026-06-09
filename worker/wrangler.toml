@@ -2,6 +2,9 @@ name = "dog-day-push"
 main = "src/index.ts"
 compatibility_date = "2024-11-01"
 
+# Expose the worker on its <name>.<subdomain>.workers.dev URL.
+workers_dev = true
+
 # Created with: wrangler kv namespace create SUBSCRIBERS
 # Paste the printed id below.
 kv_namespaces = [

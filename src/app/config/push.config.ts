@@ -8,6 +8,6 @@
  */
 export const PUSH_CONFIG = {
   vapidPublicKey: 'BOWemmuzA81-oeWK4miIENFuXOQnO0xjsvbgazB7XSkMqEF2rGVyiFKS4iwo4iWQ6BcoeG-fULJfaRJFeXv9eTY',
-  workerUrl: 'https://dog-day-push.dog.workers.dev',
+  workerUrl: 'https://dog-day-push.dog-day.workers.dev',
   daysAhead: 7
 };
