@@ -2,7 +2,7 @@
 
 import { TimelineItem } from '../engine/engagement-engine';
 
-export type TabId = 'today' | 'week' | 'kit' | 'setup';
+export type TabId = 'today' | 'week' | 'goals' | 'kit' | 'setup';
 
 export interface DogProfile {
   name: string;
@@ -28,15 +28,26 @@ export interface WalkRow {
   days: number[];
 }
 
+/** Per-date exceptions layered on top of the recurring routine. */
+export interface DayOverride {
+  dayCare?: boolean;
+  events?: EventRow[];
+  walks?: WalkRow[];
+  skip?: string[];
+}
+
 export interface FormState {
+  /** The day currently being viewed (navigation state, not routine data). */
   date: string;
+  /** Recurring routine: awake window + commitments + walks (each with weekdays). */
   dayStart: string;
   dayEnd: string;
   reminders: boolean;
   treats: boolean;
-  dayCareDates: string[];
   events: EventRow[];
   walks: WalkRow[];
+  /** One-offs / skips / day-care, keyed by ISO date. */
+  overrides: Record<string, DayOverride>;
 }
 
 export interface WeekDay {
@@ -48,6 +59,12 @@ export interface WeekDay {
   games: number;
   walks: number;
   items: TimelineItem[];
+}
+
+/** The active day's routine items with their per-day skip state (for the day editor). */
+export interface DaySchedule {
+  events: { row: EventRow; skipped: boolean }[];
+  walks: { row: WalkRow; skipped: boolean }[];
 }
 
 /** A single reminder flattened to an absolute time, for the push backend. */

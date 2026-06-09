@@ -54,6 +54,14 @@
               >
                 <app-icon [name]="vm.reminders ? 'bell' : 'bellOff'" [size]="15" [stroke]="2.2"></app-icon>
               </button>
+              <button
+                type="button"
+                class="chip daycare"
+                (click)="toggleDayCare()"
+                aria-label="Mark today as a day at day care"
+              >
+                <app-icon name="pin" [size]="15" [stroke]="2.2"></app-icon>
+              </button>
             </div>
           </div>
 
@@ -96,6 +104,7 @@
             [done]="next.done"
             (toggleDone)="toggleDone(next.item)"
             (swap)="swapItem(next.item)"
+            (nailed)="nailGoal(next.item)"
           ></app-entry-card>
         </div>
 
@@ -109,6 +118,13 @@
             ></app-ribbon-row>
           </div>
         </div>
+
+        <button type="button" class="kd-btn edit-day" (click)="toggleEditor()" [attr.aria-expanded]="editorOpen$ | async">
+          <app-icon [name]="(editorOpen$ | async) ? 'chevD' : 'edit'" [size]="16" [stroke]="2.2"></app-icon>
+          {{ (editorOpen$ | async) ? 'Done editing this day' : 'Edit this day' }}
+        </button>
+
+        <app-day-editor *ngIf="editorOpen$ | async"></app-day-editor>
 
         <button type="button" class="kd-btn kd-btn-plum reshuffle" (click)="reshuffle()">
           <app-icon name="shuffle" [size]="18" color="var(--on-plum)" [stroke]="2.2"></app-icon> Reshuffle the day

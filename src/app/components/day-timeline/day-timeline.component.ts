@@ -1,12 +1,14 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Observable, combineLatest } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { TimelineItem } from '../../engine/engagement-engine';
+import { GoalsService } from '../../services/goals.service';
 import { PlannerService } from '../../services/planner.service';
 import { ProfileService } from '../../services/profile.service';
 import { itemKey } from '../../util/item-key.util';
+import { DayEditorComponent } from '../day-editor/day-editor.component';
 import { EntryCardComponent } from '../entry-card/entry-card.component';
 import { IconComponent } from '../icon/icon.component';
 import { RibbonRowComponent } from '../ribbon-row/ribbon-row.component';
@@ -35,7 +37,7 @@ interface DayVm {
 @Component({
   selector: 'app-day-timeline',
   standalone: true,
-  imports: [CommonModule, IconComponent, EntryCardComponent, RibbonRowComponent],
+  imports: [CommonModule, IconComponent, EntryCardComponent, RibbonRowComponent, DayEditorComponent],
   templateUrl: './day-timeline.component.html',
   styleUrls: ['./day-timeline.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -43,6 +45,9 @@ interface DayVm {
 export class DayTimelineComponent {
   private readonly planner = inject(PlannerService);
   private readonly profile = inject(ProfileService);
+  private readonly goals = inject(GoalsService);
+
+  readonly editorOpen$ = new BehaviorSubject<boolean>(false);
 
   readonly vm$: Observable<DayVm> = combineLatest([
     this.planner.plan$,
@@ -62,12 +67,24 @@ export class DayTimelineComponent {
     this.planner.swapItem(item);
   }
 
+  nailGoal(item: TimelineItem): void {
+    if (item.type === 'goal') this.goals.advance(item.goalId);
+  }
+
   reshuffle(): void {
     this.planner.reshuffle();
   }
 
   toggleReminders(): void {
     this.planner.toggleReminders();
+  }
+
+  toggleDayCare(): void {
+    this.planner.toggleDayCare();
+  }
+
+  toggleEditor(): void {
+    this.editorOpen$.next(!this.editorOpen$.value);
   }
 
   planAfterAll(): void {
@@ -94,7 +111,9 @@ export class DayTimelineComponent {
     ]
   ): DayVm {
     const decorated: DecoratedItem[] = items.map((item) => ({ item, done: doneSet.has(itemKey(item)) }));
-    const main = decorated.filter((d) => d.item.type === 'game' || d.item.type === 'walk');
+    const main = decorated.filter(
+      (d) => d.item.type === 'game' || d.item.type === 'walk' || d.item.type === 'goal'
+    );
     const extras = decorated.filter((d) => d.item.type === 'treat' || d.item.type === 'care');
     const firstPending = main.find((d) => !d.done) ?? null;
     return {

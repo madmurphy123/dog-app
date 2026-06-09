@@ -2,15 +2,8 @@
   <!-- dog identity -->
   <app-profile-card></app-profile-card>
 
-  <!-- date + awake window -->
+  <!-- awake window -->
   <section class="kd-card card">
-    <div class="field-label">
-      <app-icon name="calendar" [size]="15" color="var(--ink-faint)" [stroke]="2.2"></app-icon>
-      <span class="kd-eyebrow">The day</span>
-    </div>
-    <label class="sr-only" for="setup-date">Date</label>
-    <input id="setup-date" type="date" class="kd-input kd-mono date" formControlName="date" />
-
     <div class="field-label">
       <app-icon name="sun" [size]="15" color="var(--ink-faint)" [stroke]="2.2"></app-icon>
       <span class="kd-eyebrow">Awake window</span>
@@ -21,6 +14,7 @@
       <span class="dash">–</span>
       <input type="time" class="kd-input kd-mono" formControlName="dayEnd" aria-label="Awake until" />
     </div>
+    <p class="routine-note">This is your usual week. Tweak a single day from Today.</p>
   </section>
 
   <!-- commitments -->
@@ -123,23 +117,6 @@
       <app-icon name="plus" [size]="17" [stroke]="2.4"></app-icon> Add walk
     </button>
   </section>
-
-  <!-- day care -->
-  <button
-    type="button"
-    class="kd-card toggle-card"
-    [class.on-care]="planner.isDayCare$ | async"
-    (click)="planner.toggleDayCare()"
-  >
-    <span class="toggle-icon care" [class.active]="planner.isDayCare$ | async">
-      <app-icon name="pin" [size]="21" [color]="(planner.isDayCare$ | async) ? '#fff' : 'var(--ink-faint)'" [stroke]="2.1"></app-icon>
-    </span>
-    <span class="toggle-body">
-      <span class="kd-display toggle-title">At doggy day care</span>
-      <span class="toggle-sub">Block the whole day — out having fun.</span>
-    </span>
-    <span class="switch care" [class.on]="planner.isDayCare$ | async" aria-hidden="true"><span class="knob"></span></span>
-  </button>
 
   <!-- treats -->
   <button type="button" class="kd-card toggle-card" (click)="planner.toggleTreats()">

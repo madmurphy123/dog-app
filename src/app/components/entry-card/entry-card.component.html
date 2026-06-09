@@ -1,4 +1,4 @@
-<article class="entry kd-card" *ngIf="vm as v" [class.dimmed]="done" [style.--accent]="v.meta.accent" [style.--tint]="v.meta.tint">
+<article class="entry kd-card" *ngIf="vm as v" [class.dimmed]="done" [class.goal]="v.isGoal" [style.--accent]="v.meta.accent" [style.--tint]="v.meta.tint">
   <header class="head">
     <span class="kd-mono time">{{ v.item.time }}</span>
     <span class="kd-eyebrow kind">{{ v.meta.type }}</span>
@@ -11,8 +11,16 @@
         <app-icon name="sparkle" [size]="14" color="var(--treat)" [stroke]="2.2"></app-icon> Surprise
       </span>
       <span class="chip care-status" *ngSwitchCase="'care'">Reminder</span>
+      <ng-container *ngSwitchCase="'goal'">
+        <span class="chip goal-status" *ngIf="v.goal as g">Step {{ g.stepIndex + 1 }}/{{ g.total }}</span>
+      </ng-container>
     </span>
   </header>
+
+  <div class="goal-banner" *ngIf="v.goal as g">
+    <app-icon name="target" [size]="14" color="var(--accent)" [stroke]="2.2"></app-icon>
+    <span>Working towards · {{ g.title }}</span>
+  </div>
 
   <div class="main">
     <span class="icon-tile">
@@ -30,6 +38,7 @@
       </div>
 
       <p class="twist" *ngIf="v.variation"><span class="twist-label">Twist</span> {{ v.variation }}</p>
+      <p class="twist" *ngIf="v.goal as g"><span class="twist-label">Nailed it when</span> {{ g.criterion }}</p>
     </div>
   </div>
 
@@ -41,11 +50,14 @@
   </ul>
 
   <div class="actions" *ngIf="showAction">
-    <button type="button" class="kd-btn mark" [class.is-done]="done" (click)="toggleDone.emit()">
+    <button *ngIf="v.isGoal" type="button" class="kd-btn mark goal-mark" (click)="nailed.emit()">
+      <app-icon name="check" [size]="16" color="#fff" [stroke]="2.4"></app-icon> Nailed it →
+    </button>
+    <button *ngIf="!v.isGoal" type="button" class="kd-btn mark" [class.is-done]="done" (click)="toggleDone.emit()">
       <app-icon name="check" [size]="16" [stroke]="2.4"></app-icon>
       {{ done ? 'Done' : 'Mark as done' }}
     </button>
-    <button type="button" class="kd-btn swap" *ngIf="v.isGame" (click)="swap.emit()" aria-label="Swap this activity">
+    <button *ngIf="v.isGame" type="button" class="kd-btn swap" (click)="swap.emit()" aria-label="Swap this activity">
       <app-icon name="shuffle" [size]="16" [stroke]="2.2"></app-icon>
     </button>
   </div>

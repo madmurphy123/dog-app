@@ -26,4 +26,5 @@ export type IconName =
   | 'sparkle'
   | 'pin'
   | 'gift'
-  | 'droplet';
+  | 'droplet'
+  | 'target';

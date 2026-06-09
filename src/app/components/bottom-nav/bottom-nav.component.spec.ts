@@ -11,10 +11,10 @@ describe('BottomNavComponent', () => {
     fixture = TestBed.createComponent(BottomNavComponent);
   });
 
-  it('renders four tab buttons', () => {
+  it('renders five tab buttons', () => {
     fixture.detectChanges();
 
-    expect((fixture.nativeElement as HTMLElement).querySelectorAll('.nav-item').length).toBe(4);
+    expect((fixture.nativeElement as HTMLElement).querySelectorAll('.nav-item').length).toBe(5);
   });
 
   it('shows the label only on the active tab', () => {
@@ -32,7 +32,7 @@ describe('BottomNavComponent', () => {
     fixture.detectChanges();
 
     const buttons = (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>('.nav-item');
-    buttons[2].click(); // Kit
+    buttons[3].click(); // Kit (Today, Week, Goals, Kit, Setup)
 
     expect(emitted).toEqual(['kit']);
   });

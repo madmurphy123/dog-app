@@ -28,6 +28,7 @@ export function entryMeta(item: TimelineItem): EntryMeta {
   if (item.type === 'walk') return { accent: 'var(--walk)', tint: 'var(--walk-tint)', icon: 'walk', type: 'Walk' };
   if (item.type === 'treat') return { accent: 'var(--treat)', tint: 'var(--treat-tint)', icon: 'gift', type: 'Treat' };
   if (item.type === 'care') return { accent: 'var(--care)', tint: 'var(--care-tint)', icon: 'droplet', type: 'Care' };
+  if (item.type === 'goal') return { accent: 'var(--goal)', tint: 'var(--goal-tint)', icon: 'target', type: 'Goal' };
   const a = AROUSAL[item.arousal];
   return { accent: `var(${a.varc})`, tint: `var(${a.tint})`, icon: 'paw', type: 'Game' };
 }

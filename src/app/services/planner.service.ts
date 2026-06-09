@@ -5,14 +5,28 @@ import { distinctUntilChanged, map, shareReplay } from 'rxjs/operators';
 
 import {
   GameItem,
+  GoalItem,
   ShoppingItem,
   TimelineItem,
   buildDogDay,
   buildShoppingList,
   pickDailyNote,
+  seededIndex,
   swapGame
 } from '../engine/engagement-engine';
-import { ALL_DAYS, EventRow, FormState, PushReminder, TabId, WalkRow, WeekDay } from '../models/app.models';
+import { resolveGoals } from '../engine/goals';
+import { GoalsService } from './goals.service';
+import {
+  ALL_DAYS,
+  DayOverride,
+  DaySchedule,
+  EventRow,
+  FormState,
+  PushReminder,
+  TabId,
+  WalkRow,
+  WeekDay
+} from '../models/app.models';
 import { isoOf, mondayOf, todayISO, weekdayIndex } from '../util/date.util';
 import { withDogName } from '../util/dog-name.util';
 import { itemKey } from '../util/item-key.util';
@@ -28,19 +42,29 @@ function defaultForm(): FormState {
     dayEnd: '21:00',
     reminders: true,
     treats: true,
-    dayCareDates: [],
     events: [],
-    walks: []
+    walks: [],
+    overrides: {}
   };
 }
 
-/** A day is "set up" once it has at least one walk or commitment to plan around. */
+/** A day is "set up" once the routine (or any override) has something to plan around. */
 function isConfigured(form: FormState): boolean {
-  return form.events.length > 0 || form.walks.length > 0;
+  if (form.events.length > 0 || form.walks.length > 0) return true;
+  return Object.values(form.overrides ?? {}).some((o) => (o.events?.length ?? 0) > 0 || (o.walks?.length ?? 0) > 0);
 }
 
-/** Backfill recurrence/duration on data saved before the recurring-routine model. */
+function isEmptyOverride(o: DayOverride): boolean {
+  return !o.dayCare && !(o.events?.length ?? 0) && !(o.walks?.length ?? 0) && !(o.skip?.length ?? 0);
+}
+
+/** Backfill the recurring-routine + overrides shape onto data saved by older builds. */
 function normalizeForm(form: FormState): FormState {
+  const legacy = form as FormState & { dayCareDates?: string[] };
+  const overrides: Record<string, DayOverride> = { ...(form.overrides ?? {}) };
+  for (const iso of legacy.dayCareDates ?? []) {
+    overrides[iso] = { ...(overrides[iso] ?? {}), dayCare: true };
+  }
   return {
     ...form,
     events: (form.events ?? []).map((e) => ({ ...e, days: e.days ?? [...ALL_DAYS] })),
@@ -48,7 +72,8 @@ function normalizeForm(form: FormState): FormState {
       ...w,
       days: w.days ?? [...ALL_DAYS],
       duration: w.duration && w.duration > 0 ? w.duration : 30
-    }))
+    })),
+    overrides
   };
 }
 
@@ -56,7 +81,7 @@ function uid(): string {
   return Math.random().toString(36).slice(2, 8);
 }
 
-const TABS: readonly TabId[] = ['today', 'week', 'kit', 'setup'];
+const TABS: readonly TabId[] = ['today', 'week', 'goals', 'kit', 'setup'];
 
 /**
  * Single source of app state. Inputs (form / owned kit / nonce) live in
@@ -69,6 +94,7 @@ const TABS: readonly TabId[] = ['today', 'week', 'kit', 'setup'];
 export class PlannerService {
   private readonly destroyRef = inject(DestroyRef);
   private readonly profile = inject(ProfileService);
+  private readonly goals = inject(GoalsService);
 
   private readonly formSubject = new BehaviorSubject<FormState>(
     normalizeForm(loadJson('form', defaultForm()))
@@ -110,7 +136,7 @@ export class PlannerService {
 
   readonly isDayCare$: Observable<boolean> = this.form$
     .pipe(
-      map((f) => f.dayCareDates.includes(f.date)),
+      map((f) => f.overrides[f.date]?.dayCare ?? false),
       distinctUntilChanged()
     );
 
@@ -119,12 +145,14 @@ export class PlannerService {
     this.nonceSubject,
     this.ownedKitSubject,
     this.swapsSubject,
-    this.profile.name$
+    this.profile.name$,
+    this.goals.active$
   ])
     .pipe(
-      map(([form, nonce, owned, swaps, name]) =>
-        this.nameItems(this.applySwaps(this.rawPlan(form, nonce, owned), form, owned, swaps), name)
-      ),
+      map(([form, nonce, owned, swaps, name, goalsActive]) => {
+        const named = this.nameItems(this.applySwaps(this.rawPlan(form, nonce, owned), form, owned, swaps), name);
+        return this.weaveGoals(named, form.date, goalsActive, name);
+      }),
       shareReplay({ bufferSize: 1, refCount: false })
     );
 
@@ -138,6 +166,24 @@ export class PlannerService {
     .pipe(
       map((plan) => plan.some((i) => i.type === 'treat')),
       distinctUntilChanged()
+    );
+
+  /** The active day's routine commitments/walks with their skip state. */
+  readonly daySchedule$: Observable<DaySchedule> = this.form$
+    .pipe(
+      map((form) => {
+        const wd = weekdayIndex(form.date);
+        const skip = new Set(form.overrides[form.date]?.skip ?? []);
+        return {
+          events: form.events
+            .filter((e) => (e.days ?? ALL_DAYS).includes(wd))
+            .map((e) => ({ row: e, skipped: skip.has(e.id) })),
+          walks: form.walks
+            .filter((w) => (w.days ?? ALL_DAYS).includes(wd))
+            .map((w) => ({ row: w, skipped: skip.has(w.id) }))
+        };
+      }),
+      shareReplay({ bufferSize: 1, refCount: false })
     );
 
   /** A nice non-task thing to do for the dog today (name-substituted). */
@@ -247,14 +293,27 @@ export class PlannerService {
   }
 
   toggleDayCare(): void {
-    const form = this.formSubject.value;
-    const set = new Set(form.dayCareDates);
-    if (set.has(form.date)) {
-      set.delete(form.date);
-    } else {
-      set.add(form.date);
-    }
-    this.patchForm({ dayCareDates: [...set] });
+    const date = this.formSubject.value.date;
+    this.patchOverride(date, (ov) => ({ ...ov, dayCare: !ov.dayCare }));
+  }
+
+  /** Skip / un-skip a routine commitment or walk for the active day only. */
+  toggleSkip(id: string): void {
+    const date = this.formSubject.value.date;
+    this.patchOverride(date, (ov) => {
+      const skip = new Set(ov.skip ?? []);
+      if (skip.has(id)) {
+        skip.delete(id);
+      } else {
+        skip.add(id);
+      }
+      return { ...ov, skip: [...skip] };
+    });
+  }
+
+  /** Replace the active day's one-off commitments/walks (from the day editor). */
+  setDayOneOffs(events: EventRow[], walks: WalkRow[]): void {
+    this.patchOverride(this.formSubject.value.date, (ov) => ({ ...ov, events, walks }));
   }
 
   toggleReminders(): void {
@@ -286,16 +345,37 @@ export class PlannerService {
     this.ownedKitSubject.next(set);
   }
 
-  /** Commitments active on a given date (by weekday recurrence). */
-  private eventsForDate(form: FormState, iso: string): EventRow[] {
-    const wd = weekdayIndex(iso);
-    return form.events.filter((e) => e.start && e.end && (e.days ?? ALL_DAYS).includes(wd));
+  private patchOverride(iso: string, fn: (ov: DayOverride) => DayOverride): void {
+    const form = this.formSubject.value;
+    const next = fn(form.overrides[iso] ?? {});
+    const overrides = { ...form.overrides };
+    if (isEmptyOverride(next)) {
+      delete overrides[iso];
+    } else {
+      overrides[iso] = next;
+    }
+    this.patchForm({ overrides });
   }
 
-  /** Walks active on a given date (by weekday recurrence). */
+  /** Commitments active on a given date: recurring routine (minus skips) + one-offs. */
+  private eventsForDate(form: FormState, iso: string): EventRow[] {
+    const wd = weekdayIndex(iso);
+    const ov = form.overrides[iso] ?? {};
+    const skip = new Set(ov.skip ?? []);
+    const routine = form.events.filter(
+      (e) => e.start && e.end && (e.days ?? ALL_DAYS).includes(wd) && !skip.has(e.id)
+    );
+    const extras = (ov.events ?? []).filter((e) => e.start && e.end);
+    return [...routine, ...extras];
+  }
+
+  /** Walks active on a given date: recurring routine (minus skips) + one-offs. */
   private walksForDate(form: FormState, iso: string): WalkRow[] {
     const wd = weekdayIndex(iso);
-    return form.walks.filter((w) => (w.days ?? ALL_DAYS).includes(wd));
+    const ov = form.overrides[iso] ?? {};
+    const skip = new Set(ov.skip ?? []);
+    const routine = form.walks.filter((w) => (w.days ?? ALL_DAYS).includes(wd) && !skip.has(w.id));
+    return [...routine, ...(ov.walks ?? [])];
   }
 
   private rawPlan(form: FormState, nonce: number, owned: Set<string>): TimelineItem[] {
@@ -387,7 +467,7 @@ export class PlannerService {
       const date = new Date(midnight);
       date.setDate(midnight.getDate() + i);
       const iso = isoOf(date);
-      if (form.dayCareDates.includes(iso)) continue;
+      if (form.overrides[iso]?.dayCare) continue;
 
       const items = this.nameItems(
         buildDogDay({
@@ -420,7 +500,7 @@ export class PlannerService {
       const date = new Date(mon);
       date.setDate(mon.getDate() + i);
       const iso = isoOf(date);
-      const isCare = form.dayCareDates.includes(iso);
+      const isCare = form.overrides[iso]?.dayCare ?? false;
       const items =
         isCare || !configured
           ? []
@@ -447,6 +527,38 @@ export class PlannerService {
         items
       };
     });
+  }
+
+  /** Weave one active goal's current step into the day, replacing a game slot. */
+  private weaveGoals(
+    plan: TimelineItem[],
+    date: string,
+    active: Record<string, number>,
+    name: string
+  ): TimelineItem[] {
+    const progress = resolveGoals(active).filter((p) => !p.complete);
+    if (!progress.length) return plan;
+    const gameIdx = plan.findIndex((i) => i.type === 'game');
+    if (gameIdx < 0) return plan;
+
+    const featured = progress[seededIndex(date + '|goal', progress.length)];
+    const slot = plan[gameIdx];
+    const goalItem: GoalItem = {
+      time: slot.time,
+      type: 'goal',
+      goalId: featured.goalId,
+      goalTitle: withDogName(featured.title, name),
+      title: withDogName(featured.step.title, name),
+      detail: withDogName(featured.step.detail, name),
+      stepIndex: featured.stepIndex,
+      totalSteps: featured.total,
+      minutes: featured.step.minutes,
+      equipment: featured.step.kit.map((k) => k.name),
+      criterion: withDogName(featured.step.done, name)
+    };
+    const out = [...plan];
+    out[gameIdx] = goalItem;
+    return out;
   }
 
   private nameShopping(list: ShoppingItem[], name: string): ShoppingItem[] {

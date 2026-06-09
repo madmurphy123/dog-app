@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 
+import { GoalsService } from './goals.service';
 import { PlannerService } from './planner.service';
 import { ProfileService } from './profile.service';
 import { todayISO } from '../util/date.util';
@@ -38,6 +39,15 @@ describe('PlannerService', () => {
 
     expect(walk).toBeDefined();
     expect(JSON.stringify(plan)).not.toContain('{dog}');
+  });
+
+  it('weaves an active goal step into the plan', async () => {
+    const goals = TestBed.inject(GoalsService);
+    goals.toggle('recall');
+    service.addWalk('09:00');
+
+    const plan = await firstValueFrom(service.plan$);
+    expect(plan.some((i) => i.type === 'goal')).toBe(true);
   });
 
   it('leaves no {dog} token in the shopping list', async () => {
@@ -96,7 +106,7 @@ describe('PlannerService', () => {
   });
 
   it('flags day care for the active date', async () => {
-    service.patchForm({ date: todayISO(), dayCareDates: [] });
+    service.patchForm({ date: todayISO(), overrides: {} });
     service.toggleDayCare();
 
     const isDayCare = await firstValueFrom(service.isDayCare$);

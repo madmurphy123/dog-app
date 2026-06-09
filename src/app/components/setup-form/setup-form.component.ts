@@ -32,7 +32,6 @@ type WalkGroup = FormGroup<{
 }>;
 
 interface SetupControls {
-  date: FormControl<string>;
   dayStart: FormControl<string>;
   dayEnd: FormControl<string>;
   events: FormArray<EventGroup>;
@@ -133,7 +132,6 @@ export class SetupFormComponent implements OnInit {
   private sync(): void {
     const value = this.form.getRawValue();
     this.planner.patchForm({
-      date: value.date,
       dayStart: value.dayStart,
       dayEnd: value.dayEnd,
       events: value.events,
@@ -144,7 +142,6 @@ export class SetupFormComponent implements OnInit {
   private buildForm(): FormGroup<SetupControls> {
     const snapshot = this.planner.formSnapshot;
     return this.fb.group<SetupControls>({
-      date: this.fb.control(snapshot.date),
       dayStart: this.fb.control(snapshot.dayStart),
       dayEnd: this.fb.control(snapshot.dayEnd),
       events: this.fb.array(snapshot.events.map((e) => this.eventGroup(e))),

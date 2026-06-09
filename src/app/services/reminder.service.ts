@@ -58,7 +58,7 @@ export class ReminderService {
     this.lastPlan = plan;
 
     if (!form.reminders) return;
-    if (form.dayCareDates.includes(form.date)) return;
+    if (form.overrides[form.date]?.dayCare) return;
     if (form.date !== todayISO()) return; // only nudge for the live day
 
     const now = new Date();

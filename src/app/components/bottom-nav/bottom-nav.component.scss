@@ -13,10 +13,10 @@
 }
 
 .nav {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 5px;
-  max-width: 370px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 380px;
   margin: 0 auto;
   padding: 6px;
   border-radius: var(--r-pill);
@@ -26,15 +26,18 @@
 }
 
 .nav-item {
-  padding: 11px 0;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 12px 0;
   border-radius: var(--r-pill);
   overflow: hidden;
   background: transparent;
   color: var(--on-plum-soft);
-  transition: background 0.2s ease, color 0.2s ease, padding 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease;
 
   &.active {
-    padding: 11px 12px;
+    flex: 0 1 auto;
+    padding: 12px 18px;
     background: var(--grad-primary);
     color: var(--plum-deep);
     box-shadow: 0 4px 12px oklch(0.63 0.18 30 / 0.4);

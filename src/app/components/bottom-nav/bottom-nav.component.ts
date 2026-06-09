@@ -27,6 +27,7 @@ export class BottomNavComponent {
   protected readonly items: readonly NavItem[] = [
     { id: 'today', label: 'Today', icon: 'list' },
     { id: 'week', label: 'Week', icon: 'calendar' },
+    { id: 'goals', label: 'Goals', icon: 'target' },
     { id: 'kit', label: 'Kit', icon: 'cart' },
     { id: 'setup', label: 'Setup', icon: 'edit' }
   ];

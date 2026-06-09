@@ -10,6 +10,7 @@ import { ReminderService } from './services/reminder.service';
 import { fmtDate } from './util/date.util';
 import { BottomNavComponent } from './components/bottom-nav/bottom-nav.component';
 import { DayTimelineComponent } from './components/day-timeline/day-timeline.component';
+import { GoalsViewComponent } from './components/goals-view/goals-view.component';
 import { HeaderComponent } from './components/header/header.component';
 import { IconComponent } from './components/icon/icon.component';
 import { KitListComponent } from './components/kit-list/kit-list.component';
@@ -37,6 +38,7 @@ interface ShellVm {
     SetupFormComponent,
     DayTimelineComponent,
     WeekPlannerComponent,
+    GoalsViewComponent,
     KitListComponent
   ],
   templateUrl: './app.component.html',
@@ -74,6 +76,8 @@ export class AppComponent {
         return `Let’s plan ${possessive} day`;
       case 'week':
         return `${possessive} week`;
+      case 'goals':
+        return `${possessive} goals`;
       case 'kit':
         return `${possessive} kit`;
       default:

@@ -120,7 +120,18 @@ export interface CareItem extends BaseItem {
   careId: string;
 }
 
-export type TimelineItem = WalkItem | GameItem | TreatItem | CareItem;
+export interface GoalItem extends BaseItem {
+  type: 'goal';
+  goalId: string;
+  goalTitle: string;
+  stepIndex: number;
+  totalSteps: number;
+  minutes: number;
+  equipment: string[];
+  criterion: string;
+}
+
+export type TimelineItem = WalkItem | GameItem | TreatItem | CareItem | GoalItem;
 
 export interface ShoppingItem {
   name: string;
@@ -393,6 +404,11 @@ export const DAILY_NOTES: string[] = [
 export function pickDailyNote(date: string): string {
   const rng = mulberry32(hashStr(String(date) + '|note'));
   return DAILY_NOTES[Math.floor(rng() * DAILY_NOTES.length)];
+}
+
+/** Stable index in [0, length) seeded by a string — for date-based rotation. */
+export function seededIndex(seed: string, length: number): number {
+  return length > 0 ? hashStr(seed) % length : 0;
 }
 
 function ownedOk(x: { kit?: KitItem[] }, owned?: string[]): boolean {
