@@ -1,0 +1,39 @@
+<div class="kit-view" *ngIf="vm$ | async as vm">
+  <!-- summary -->
+  <div class="kd-card summary">
+    <span class="summary-icon"><app-icon name="cart" [size]="24" color="var(--walk)" [stroke]="2.1"></app-icon></span>
+    <div class="summary-body">
+      <div class="kd-display summary-title">This week’s kit</div>
+      <div class="summary-sub">
+        <ng-container *ngIf="vm.toGet > 0; else stocked">
+          <b class="to-get">{{ vm.toGet }} to pick up</b> · {{ vm.have }} in the kit
+        </ng-container>
+        <ng-template #stocked>Fully stocked — everything’s in play.</ng-template>
+      </div>
+    </div>
+  </div>
+
+  <!-- explainer -->
+  <div class="kd-card explainer">
+    <app-icon name="sparkle" [size]="16" color="var(--plum)" [stroke]="2.2"></app-icon>
+    <span>
+      Buy a few across the week — tick each off when it lands. The plan only pulls in the games,
+      treats and care you’ve got the kit for.
+    </span>
+  </div>
+
+  <!-- grouped sections -->
+  <section class="group" *ngFor="let group of vm.groups; trackBy: trackByKey">
+    <div class="group-head" *ngIf="group.items.length">
+      <app-icon [name]="group.icon" [size]="15" color="var(--ink-faint)" [stroke]="2.1"></app-icon>
+      <span class="kd-eyebrow">{{ group.key }}</span>
+      <span class="group-hint">{{ group.hint }}</span>
+    </div>
+    <app-kit-item
+      *ngFor="let entry of group.items; trackBy: trackByName"
+      [item]="entry.item"
+      [owned]="entry.owned"
+      (toggle)="toggle(entry.item.name)"
+    ></app-kit-item>
+  </section>
+</div>

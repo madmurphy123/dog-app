@@ -1,0 +1,16 @@
+<div class="nav-wrap">
+  <nav class="nav" aria-label="Primary">
+    <button
+      type="button"
+      class="kd-btn nav-item"
+      *ngFor="let item of items; trackBy: trackById"
+      [class.active]="item.id === value"
+      [attr.aria-current]="item.id === value ? 'page' : null"
+      [attr.aria-label]="item.label"
+      (click)="valueChange.emit(item.id)"
+    >
+      <app-icon [name]="item.icon" [size]="20" [stroke]="2.2"></app-icon>
+      <span class="label" *ngIf="item.id === value">{{ item.label }}</span>
+    </button>
+  </nav>
+</div>

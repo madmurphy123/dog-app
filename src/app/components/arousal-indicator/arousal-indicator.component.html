@@ -1,0 +1,10 @@
+<span class="arousal" [style.--accent]="accent">
+  <span class="bars">
+    <span
+      class="bar"
+      *ngFor="let level of levels; trackBy: trackByLevel"
+      [class.filled]="level <= meta.level"
+    ></span>
+  </span>
+  <span class="label kd-mono">{{ meta.short }}</span>
+</span>

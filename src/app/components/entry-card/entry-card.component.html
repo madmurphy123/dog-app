@@ -1,0 +1,44 @@
+<article class="entry kd-card" *ngIf="vm as v" [class.dimmed]="done" [style.--accent]="v.meta.accent" [style.--tint]="v.meta.tint">
+  <header class="head">
+    <span class="kd-mono time">{{ v.item.time }}</span>
+    <span class="kd-eyebrow kind">{{ v.meta.type }}</span>
+    <span class="status" [ngSwitch]="v.kind">
+      <span class="chip walk-status" *ngSwitchCase="'walk'">
+        <app-icon name="leaf" [size]="14" color="var(--walk)" [stroke]="2.2"></app-icon> Sniff &amp; stroll
+      </span>
+      <app-arousal-indicator *ngSwitchCase="'game'" [arousal]="v.arousal || 'med'"></app-arousal-indicator>
+      <span class="chip treat-status" *ngSwitchCase="'treat'">
+        <app-icon name="sparkle" [size]="14" color="var(--treat)" [stroke]="2.2"></app-icon> Surprise
+      </span>
+      <span class="chip care-status" *ngSwitchCase="'care'">Reminder</span>
+    </span>
+  </header>
+
+  <div class="main">
+    <span class="icon-tile">
+      <app-icon [name]="v.meta.icon" [size]="24" color="var(--accent)" [stroke]="2.1"></app-icon>
+    </span>
+    <div class="text">
+      <h3 class="kd-display title" [class.struck]="done">{{ v.item.title }}</h3>
+      <p class="detail">{{ v.item.detail }}</p>
+    </div>
+  </div>
+
+  <ul class="tasks" *ngIf="v.tasks as tasks">
+    <li class="task" *ngFor="let task of tasks; trackBy: trackByIndex">
+      <span class="bullet"><span class="dot"></span></span>
+      <span>{{ task }}</span>
+    </li>
+  </ul>
+
+  <button
+    type="button"
+    class="kd-btn action"
+    *ngIf="showAction"
+    [class.is-done]="done"
+    (click)="toggleDone.emit()"
+  >
+    <app-icon name="check" [size]="16" [stroke]="2.4"></app-icon>
+    {{ done ? 'Done' : 'Mark as done' }}
+  </button>
+</article>

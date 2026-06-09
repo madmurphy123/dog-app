@@ -1,0 +1,91 @@
+<ng-container *ngIf="vm$ | async as vm">
+  <!-- day-care rest state -->
+  <div class="rest kd-card" *ngIf="vm.isDayCare; else dayContent">
+    <span class="rest-icon"><app-icon name="pin" [size]="30" color="var(--care)" [stroke]="2"></app-icon></span>
+    <h3 class="kd-display rest-title">{{ vm.displayName }}’s at day care</h3>
+    <p class="rest-msg">Nothing to plan today — enjoy the quiet. They’ll come home happily worn out.</p>
+    <button type="button" class="kd-btn kd-btn-ghost" (click)="planAfterAll()">
+      <app-icon name="edit" [size]="16" [stroke]="2.2"></app-icon> Plan today after all
+    </button>
+  </div>
+
+  <ng-template #dayContent>
+    <!-- not set up yet -->
+    <div class="empty kd-card" *ngIf="!vm.configured; else planned">
+      <span class="empty-icon"><app-icon name="edit" [size]="28" color="var(--plum)" [stroke]="2"></app-icon></span>
+      <h3 class="kd-display empty-title">Let’s plan {{ vm.displayName }}’s day</h3>
+      <p class="empty-msg">
+        Add a walk or a commitment in Setup, and the day fills with games, training and care —
+        threaded into the gaps.
+      </p>
+      <button type="button" class="kd-btn kd-btn-primary" (click)="goToSetup()">
+        <app-icon name="edit" [size]="16" color="#fff" [stroke]="2.2"></app-icon> Go to Setup
+      </button>
+    </div>
+
+    <ng-template #planned>
+      <!-- empty state: configured but no room -->
+      <div class="empty kd-card" *ngIf="vm.count === 0; else timeline">
+        <span class="empty-icon"><app-icon name="moon" [size]="30" color="var(--plum)" [stroke]="2"></app-icon></span>
+        <h3 class="kd-display empty-title">No room today</h3>
+        <p class="empty-msg">
+          The day’s packed wall-to-wall. Free up a 25-minute gap or add a walk, then build again.
+        </p>
+        <button type="button" class="kd-btn kd-btn-ghost" (click)="reshuffle()">
+          <app-icon name="shuffle" [size]="16" [stroke]="2.2"></app-icon> Try again
+        </button>
+      </div>
+
+      <ng-template #timeline>
+      <div class="day">
+        <div class="banner treat kd-card" *ngIf="vm.hasTreat">
+          <app-icon name="gift" [size]="18" color="var(--treat)" [stroke]="2.1"></app-icon>
+          <span>Treat day — there’s a little surprise in the mix.</span>
+        </div>
+
+        <div class="headline">
+          <span class="chip neutral"><app-icon name="paw" [size]="14" color="var(--plum)"></app-icon> {{ vm.nGames }} games</span>
+          <span class="chip walk"><app-icon name="walk" [size]="14" color="var(--walk)"></app-icon> {{ vm.nWalks }} walks</span>
+          <button
+            type="button"
+            class="chip bell"
+            [class.on]="vm.reminders"
+            (click)="toggleReminders()"
+            aria-label="Toggle reminders"
+            [attr.aria-pressed]="vm.reminders"
+          >
+            <app-icon [name]="vm.reminders ? 'bell' : 'bellOff'" [size]="14" [stroke]="2.2"></app-icon>
+            {{ vm.reminders ? 'Reminders on' : 'Reminders off' }}
+          </button>
+        </div>
+
+        <div class="up-next" *ngIf="vm.firstPending as next">
+          <div class="kd-eyebrow up-next-label">
+            <span class="pulse"></span> Up next for {{ vm.displayName }}
+          </div>
+          <app-entry-card
+            [item]="next.item"
+            [done]="next.done"
+            (toggleDone)="toggleDone(next.item)"
+          ></app-entry-card>
+        </div>
+
+        <div class="later" *ngIf="vm.later.length">
+          <div class="kd-eyebrow later-label">Later today</div>
+          <div class="later-list">
+            <app-ribbon-row
+              *ngFor="let d of vm.later; trackBy: trackByKey"
+              [item]="d.item"
+              [done]="d.done"
+            ></app-ribbon-row>
+          </div>
+        </div>
+
+        <button type="button" class="kd-btn kd-btn-plum reshuffle" (click)="reshuffle()">
+          <app-icon name="shuffle" [size]="18" color="var(--on-plum)" [stroke]="2.2"></app-icon> Reshuffle the day
+        </button>
+      </div>
+      </ng-template>
+    </ng-template>
+  </ng-template>
+</ng-container>

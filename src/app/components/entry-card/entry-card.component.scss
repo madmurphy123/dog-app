@@ -1,0 +1,155 @@
+:host {
+  display: block;
+}
+
+.entry {
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  transition: opacity 0.25s ease;
+
+  &.dimmed {
+    opacity: 0.55;
+  }
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 9px;
+}
+
+.time {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--tint);
+  padding: 4px 9px;
+  border-radius: 8px;
+  letter-spacing: -0.02em;
+}
+
+.kind {
+  color: var(--ink-faint);
+}
+
+.status {
+  margin-left: auto;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: var(--r-pill);
+  padding: 5px 10px 5px 8px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.walk-status {
+  background: var(--walk-tint);
+  color: var(--walk-deep);
+}
+
+.treat-status {
+  background: var(--treat-tint);
+  color: var(--treat);
+}
+
+.care-status {
+  background: var(--care-tint);
+  color: var(--care);
+  padding: 5px 11px;
+}
+
+.main {
+  display: flex;
+  gap: 12px;
+}
+
+.icon-tile {
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  flex-shrink: 0;
+  background: var(--tint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: 18px;
+  margin: 1px 0 3px;
+
+  &.struck {
+    text-decoration: line-through;
+    text-decoration-color: var(--ink-faint);
+  }
+}
+
+.detail {
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.tasks {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.task {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.35;
+}
+
+.bullet {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  background: var(--walk-tint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+
+  .dot {
+    width: 5px;
+    height: 5px;
+    border-radius: var(--r-pill);
+    background: var(--walk);
+  }
+}
+
+.action {
+  margin-top: 13px;
+  width: 100%;
+  padding: 10px;
+  font-size: 13.5px;
+  border-radius: var(--r-md);
+  background: var(--chip);
+  color: var(--ink-soft);
+
+  &.is-done {
+    background: var(--tint);
+    color: var(--accent);
+  }
+}

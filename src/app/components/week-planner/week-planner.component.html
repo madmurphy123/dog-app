@@ -1,0 +1,48 @@
+<div class="week" *ngIf="vm$ | async as vm">
+  <!-- week strip -->
+  <div class="kd-card strip">
+    <button
+      type="button"
+      class="kd-btn strip-day"
+      *ngFor="let day of vm.days; trackBy: trackByIso"
+      [class.active]="day.isActive"
+      (click)="openDay(day.iso)"
+      [attr.aria-label]="day.date | date: 'fullDate'"
+    >
+      <span class="kd-mono wd">{{ day.date | date: 'EEEEE' }}</span>
+      <span class="kd-display num">{{ day.date | date: 'd' }}</span>
+      <span class="strip-dot" [class.care]="day.isCare" [class.today]="day.isToday" [class.active]="day.isActive"></span>
+    </button>
+  </div>
+
+  <!-- per-day rows -->
+  <div class="rows">
+    <button
+      type="button"
+      class="kd-card day-row"
+      *ngFor="let day of vm.days; trackBy: trackByIso"
+      [class.active]="day.isActive"
+      (click)="openDay(day.iso)"
+    >
+      <div class="row-head">
+        <span class="kd-display weekday">{{ day.date | date: 'EEEE' }}</span>
+        <span class="kd-mono row-date">{{ day.date | date: 'd MMM' | uppercase }}</span>
+        <span class="row-chips" *ngIf="!day.isCare">
+          <span class="chip neutral">{{ day.games }} games</span>
+          <span class="chip walk">{{ day.walks }} walks</span>
+        </span>
+        <span class="chip care" *ngIf="day.isCare">Day care</span>
+      </div>
+
+      <div class="care-note" *ngIf="day.isCare; else mini">
+        <app-icon name="moon" [size]="15" color="var(--care)" [stroke]="2"></app-icon>
+        Out at day care — a day off the plan.
+      </div>
+      <ng-template #mini>
+        <app-mini-timeline [items]="day.items" [startMin]="vm.startMin" [endMin]="vm.endMin"></app-mini-timeline>
+      </ng-template>
+    </button>
+  </div>
+
+  <p class="footnote">Same commitments, a different mix each day. Tap a day to open it.</p>
+</div>

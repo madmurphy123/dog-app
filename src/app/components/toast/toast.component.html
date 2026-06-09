@@ -1,0 +1,21 @@
+<div
+  class="toast"
+  *ngIf="vm as v"
+  role="status"
+  aria-live="polite"
+  [style.--accent]="v.meta.accent"
+  [style.--tint]="v.meta.tint"
+>
+  <span class="accent-bar"></span>
+  <span class="icon-tile">
+    <app-icon [name]="v.meta.icon" [size]="22" color="var(--accent)" [stroke]="2.2"></app-icon>
+  </span>
+  <div class="body">
+    <span class="kd-eyebrow when">Now · {{ v.item.time }}</span>
+    <div class="kd-display title">{{ v.item.title }}</div>
+    <div class="detail">{{ v.item.detail }}</div>
+  </div>
+  <button type="button" class="kd-btn close" (click)="closed.emit()" aria-label="Dismiss nudge">
+    <app-icon name="close" [size]="18" [stroke]="2.2"></app-icon>
+  </button>
+</div>

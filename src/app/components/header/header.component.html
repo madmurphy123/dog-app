@@ -1,0 +1,18 @@
+<div class="header">
+  <div class="top">
+    <span class="kd-eyebrow eyebrow">{{ eyebrow }}</span>
+  </div>
+
+  <div class="bottom">
+    <div class="titles">
+      <div class="kd-mono date">{{ subtitle }}</div>
+      <h1 class="kd-display title">{{ title }}</h1>
+    </div>
+    <span class="avatar">
+      <img *ngIf="avatar; else placeholder" [src]="avatar" alt="Dog photo" />
+      <ng-template #placeholder>
+        <app-icon name="paw" [size]="34" color="var(--on-plum)" [stroke]="2"></app-icon>
+      </ng-template>
+    </span>
+  </div>
+</div>

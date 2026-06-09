@@ -1,0 +1,17 @@
+<button type="button" class="kit kd-card" *ngIf="item as it" [class.owned]="owned" (click)="toggle.emit()">
+  <span class="box" [class.checked]="owned">
+    <app-icon *ngIf="owned" name="check" [size]="16" color="#fff" [stroke]="3"></app-icon>
+  </span>
+  <span class="body">
+    <span class="name-row">
+      <span class="kd-display name">{{ it.name }}</span>
+      <span class="badge essential" *ngIf="it.essential">Essential</span>
+      <span class="badge in-kit" *ngIf="owned">In the kit</span>
+    </span>
+    <span class="why">{{ it.why }}</span>
+    <span class="unlocks" *ngIf="hasUnlocks" [class.is-owned]="owned">
+      <app-icon name="sparkle" [size]="13" [color]="owned ? 'var(--low)' : 'var(--ink-faint)'" [stroke]="2.2"></app-icon>
+      {{ owned ? 'Unlocked' : 'Unlocks' }} {{ unlocksText }}
+    </span>
+  </span>
+</button>

@@ -1,0 +1,11 @@
+<div class="row kd-card" *ngIf="vm as v" [class.dimmed]="done" [style.--accent]="v.meta.accent" [style.--tint]="v.meta.tint">
+  <span class="kd-mono time">{{ v.item.time }}</span>
+  <span class="icon-tile">
+    <app-icon [name]="v.meta.icon" [size]="18" color="var(--accent)" [stroke]="2.2"></app-icon>
+  </span>
+  <span class="text">
+    <span class="kd-display title" [class.struck]="done">{{ v.item.title }}</span>
+    <span class="sub">{{ v.sub }}</span>
+  </span>
+  <span class="dot"></span>
+</div>

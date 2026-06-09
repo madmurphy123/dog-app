@@ -1,0 +1,140 @@
+:host {
+  display: block;
+}
+
+.day {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ---- rest / empty states ---- */
+.rest,
+.empty {
+  padding: 36px 24px;
+  text-align: center;
+}
+
+.rest-icon,
+.empty-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.rest-icon {
+  background: var(--care-tint);
+}
+
+.empty-icon {
+  background: var(--plum-tint);
+}
+
+.rest-title,
+.empty-title {
+  font-size: 20px;
+  margin: 0 0 7px;
+}
+
+.rest-msg,
+.empty-msg {
+  font-size: 14px;
+  color: var(--ink-soft);
+  line-height: 1.45;
+  margin: 0 auto 18px;
+  max-width: 260px;
+}
+
+/* ---- treat banner ---- */
+.banner {
+  border-radius: var(--r-md);
+}
+
+.treat {
+  padding: 11px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--treat-tint);
+  color: var(--treat);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ---- headline chips ---- */
+.headline {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: var(--r-pill);
+  padding: 8px 13px;
+  font-weight: 600;
+  font-size: 12.5px;
+
+  &.neutral {
+    background: var(--chip);
+    color: var(--ink-soft);
+  }
+
+  &.walk {
+    background: var(--walk-tint);
+    color: var(--walk-deep);
+  }
+}
+
+.bell {
+  margin-left: auto;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  background: var(--chip);
+  color: var(--ink-soft);
+
+  &.on {
+    background: var(--high-tint);
+    color: var(--high);
+  }
+}
+
+/* ---- up next / later ---- */
+.up-next-label {
+  color: var(--high);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--r-pill);
+  background: var(--high);
+  animation: kd-pulse 1.8s infinite;
+}
+
+.later-label {
+  color: var(--ink-faint);
+  margin: 6px 2px 10px;
+}
+
+.later-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.reshuffle {
+  width: 100%;
+  margin-top: 4px;
+}

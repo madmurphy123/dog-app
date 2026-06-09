@@ -1,0 +1,192 @@
+/* =============================================================================
+   Kenny's Day — design tokens & base. Bold-warm dog-app palette, airy spacing.
+   Palette switching is done by swapping the data-palette attr on .kd-root.
+   ============================================================================= */
+
+:root {
+  /* paper / ink */
+  --paper:      oklch(0.965 0.022 78);
+  --paper-card: oklch(0.992 0.008 78);
+  --ink:        oklch(0.27 0.035 350);
+  --ink-soft:   oklch(0.46 0.030 345);
+  --ink-faint:  oklch(0.62 0.022 345);
+
+  /* brand */
+  --plum:       oklch(0.33 0.078 350);
+  --plum-deep:  oklch(0.255 0.060 350);
+  --plum-tint:  oklch(0.93 0.020 350);
+  --on-plum:    oklch(0.965 0.018 78);
+  --on-plum-soft: oklch(0.82 0.030 350);
+
+  /* arousal trio + walk */
+  --high:       oklch(0.655 0.180 38);
+  --high-tint:  oklch(0.93 0.045 50);
+  --med:        oklch(0.785 0.150 75);
+  --med-tint:   oklch(0.945 0.045 82);
+  --low:        oklch(0.620 0.140 285);
+  --low-tint:   oklch(0.935 0.035 290);
+  --walk:       oklch(0.585 0.075 168);
+  --walk-tint:  oklch(0.935 0.030 168);
+  --walk-deep:  oklch(0.42 0.070 168);
+
+  /* treat (surprise) + care (hygiene) */
+  --treat:      oklch(0.620 0.150 18);
+  --treat-tint: oklch(0.930 0.050 25);
+  --care:       oklch(0.550 0.035 245);
+  --care-tint:  oklch(0.920 0.020 245);
+
+  /* gradients + neutral chip (swept per palette) */
+  --grad-header:  linear-gradient(152deg, oklch(0.40 0.090 350) 0%, oklch(0.30 0.070 350) 100%);
+  --grad-primary: linear-gradient(135deg, oklch(0.70 0.170 48) 0%, oklch(0.63 0.180 30) 100%);
+  --chip:         oklch(0.33 0.078 350 / 0.07);
+  --nav-bg:       var(--plum);
+
+  /* shadows (warm-tinted, low) */
+  --sh-1: 0 1px 2px oklch(0.33 0.078 350 / 0.06), 0 4px 14px oklch(0.33 0.078 350 / 0.07);
+  --sh-2: 0 2px 6px oklch(0.33 0.078 350 / 0.08), 0 14px 34px oklch(0.33 0.078 350 / 0.12);
+  --sh-plum: 0 14px 30px oklch(0.255 0.060 350 / 0.30);
+
+  /* radii */
+  --r-card: 26px;
+  --r-lg: 22px;
+  --r-md: 16px;
+  --r-pill: 999px;
+
+  --font-display: 'Bricolage Grotesque', 'Hanken Grotesk', system-ui, sans-serif;
+  --font-body: 'Hanken Grotesk', system-ui, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, monospace;
+}
+
+/* alt palette: "Sunset" — gentle warm sunset; rose → plum, apricot, dusty teal.
+   Default. Gradient-forward, no real blue (one cool teal note for walks).      */
+.kd-root[data-palette="sunset"] {
+  --paper:      oklch(0.957 0.022 52);
+  --paper-card: oklch(0.987 0.012 58);
+  --ink:        oklch(0.34 0.045 350);
+  --ink-soft:   oklch(0.50 0.040 350);
+  --ink-faint:  oklch(0.64 0.030 350);
+  --plum:       oklch(0.405 0.058 350);
+  --plum-deep:  oklch(0.320 0.050 350);
+  --plum-tint:  oklch(0.925 0.025 350);
+  --on-plum:    oklch(0.972 0.018 60);
+  --on-plum-soft: oklch(0.825 0.040 30);
+  --high:       oklch(0.660 0.135 38);
+  --high-tint:  oklch(0.930 0.045 40);
+  --med:        oklch(0.785 0.100 62);
+  --med-tint:   oklch(0.945 0.040 66);
+  --low:        oklch(0.645 0.068 330);
+  --low-tint:   oklch(0.935 0.028 332);
+  --walk:       oklch(0.605 0.052 188);
+  --walk-tint:  oklch(0.935 0.024 188);
+  --walk-deep:  oklch(0.445 0.050 192);
+  --treat:      oklch(0.665 0.115 15);
+  --treat-tint: oklch(0.935 0.040 18);
+  --care:       oklch(0.580 0.030 50);
+  --care-tint:  oklch(0.928 0.018 52);
+  --sh-plum:    0 14px 30px oklch(0.320 0.050 350 / 0.28);
+  --grad-header:  linear-gradient(152deg, oklch(0.560 0.085 12) 0%, oklch(0.450 0.072 350) 52%, oklch(0.380 0.058 332) 100%);
+  --grad-primary: linear-gradient(135deg, oklch(0.730 0.110 52) 0%, oklch(0.640 0.140 28) 100%);
+  --chip:         oklch(0.40 0.058 350 / 0.07);
+  --nav-bg:       linear-gradient(150deg, oklch(0.445 0.068 352) 0%, oklch(0.350 0.055 338) 100%);
+}
+
+/* alt palette: "Dusk" — calm dusk-coast: slate-navy + warm sand (no pink) */
+.kd-root[data-palette="dusk"] {
+  --paper:      oklch(0.955 0.013 70);
+  --paper-card: oklch(0.987 0.007 75);
+  --ink:        oklch(0.30 0.035 255);
+  --ink-soft:   oklch(0.47 0.030 255);
+  --ink-faint:  oklch(0.62 0.022 255);
+  --plum:       oklch(0.345 0.050 255);
+  --plum-deep:  oklch(0.275 0.045 255);
+  --plum-tint:  oklch(0.920 0.022 255);
+  --on-plum:    oklch(0.965 0.012 80);
+  --on-plum-soft: oklch(0.805 0.030 255);
+  --high:       oklch(0.645 0.125 45);
+  --high-tint:  oklch(0.930 0.045 50);
+  --med:        oklch(0.755 0.095 72);
+  --med-tint:   oklch(0.940 0.040 78);
+  --low:        oklch(0.620 0.078 250);
+  --low-tint:   oklch(0.930 0.030 250);
+  --walk:       oklch(0.600 0.062 195);
+  --walk-tint:  oklch(0.930 0.028 195);
+  --walk-deep:  oklch(0.435 0.055 200);
+  --treat:      oklch(0.645 0.115 32);
+  --treat-tint: oklch(0.930 0.040 38);
+  --care:       oklch(0.560 0.035 245);
+  --care-tint:  oklch(0.920 0.018 245);
+}
+
+* { box-sizing: border-box; }
+
+.kd-root {
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  height: 100%;
+}
+
+.kd-scroll {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 56px 16px 120px;
+  scrollbar-width: none;
+}
+.kd-scroll::-webkit-scrollbar { display: none; }
+
+/* ---- type helpers ---- */
+.kd-display { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.04; }
+.kd-mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.kd-eyebrow {
+  font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+}
+
+/* ---- buttons ---- */
+.kd-btn {
+  font-family: var(--font-display); font-weight: 600; font-size: 16px;
+  border: none; cursor: pointer; border-radius: var(--r-pill);
+  display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+  transition: transform .12s ease, box-shadow .2s ease, background .2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.kd-btn:active { transform: translateY(1px) scale(0.99); }
+.kd-btn-primary {
+  background: var(--grad-primary); color: oklch(0.99 0.01 60); padding: 16px 22px;
+  box-shadow: 0 8px 18px oklch(0.655 0.180 38 / 0.30);
+}
+.kd-btn-primary:hover { box-shadow: 0 10px 24px oklch(0.655 0.180 38 / 0.40); }
+.kd-btn-plum { background: var(--plum); color: var(--on-plum); padding: 14px 20px; box-shadow: var(--sh-plum); }
+.kd-btn-ghost {
+  background: var(--paper-card); color: var(--ink); padding: 13px 18px;
+  box-shadow: inset 0 0 0 1.5px oklch(0.33 0.078 350 / 0.12);
+}
+.kd-btn-ghost:hover { box-shadow: inset 0 0 0 1.5px oklch(0.33 0.078 350 / 0.26); }
+
+/* ---- card ---- */
+.kd-card { background: var(--paper-card); border-radius: var(--r-card); box-shadow: var(--sh-1); }
+
+/* ---- chip / pill ---- */
+.kd-chip {
+  display: inline-flex; align-items: center; gap: 7px; white-space: nowrap;
+  border-radius: var(--r-pill); padding: 8px 13px;
+  font-weight: 600; font-size: 13.5px;
+}
+
+/* inputs */
+.kd-input {
+  font-family: var(--font-body); font-size: 16px; font-weight: 500; color: var(--ink);
+  background: var(--paper-card); border: 1.5px solid oklch(0.33 0.078 350 / 0.12);
+  border-radius: var(--r-md); padding: 12px 14px; width: 100%;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.kd-input:focus { outline: none; border-color: var(--plum); box-shadow: 0 0 0 4px oklch(0.33 0.078 350 / 0.10); }
+.kd-mono.kd-input { font-family: var(--font-mono); letter-spacing: -0.02em; }
+
+@keyframes kd-rise { from { transform: translateY(10px); } to { transform: none; } }
+@keyframes kd-pop  { from { transform: scale(0.985); } to { transform: none; } }
+@keyframes kd-toast-in { from { opacity: 0; transform: translateY(-14px) scale(0.97); } to { opacity: 1; transform: none; } }
+@keyframes kd-pulse { 0%,100% { box-shadow: 0 0 0 0 oklch(0.655 0.180 38 / 0.35); } 50% { box-shadow: 0 0 0 7px oklch(0.655 0.180 38 / 0); } }

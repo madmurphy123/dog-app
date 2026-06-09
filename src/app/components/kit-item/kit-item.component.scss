@@ -1,0 +1,96 @@
+:host {
+  display: block;
+}
+
+.kit {
+  padding: 15px;
+  display: flex;
+  gap: 13px;
+  align-items: flex-start;
+  text-align: left;
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  background: var(--paper-card);
+  transition: background 0.2s ease;
+
+  &.owned {
+    background: oklch(0.585 0.075 168 / 0.07);
+  }
+}
+
+.box {
+  width: 26px;
+  height: 26px;
+  border-radius: 9px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s ease;
+  box-shadow: inset 0 0 0 2px oklch(0.33 0.078 350 / 0.22);
+
+  &.checked {
+    background: var(--walk);
+    box-shadow: none;
+  }
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+}
+
+.name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 3px;
+  flex-wrap: wrap;
+}
+
+.name {
+  font-size: 16px;
+}
+
+.badge {
+  border-radius: var(--r-pill);
+  padding: 2px 8px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+
+  &.essential {
+    background: var(--high-tint);
+    color: var(--high);
+  }
+
+  &.in-kit {
+    background: var(--walk-tint);
+    color: var(--walk-deep);
+  }
+}
+
+.why {
+  display: block;
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.4;
+  margin-bottom: 7px;
+}
+
+.unlocks {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-faint);
+
+  &.is-owned {
+    color: var(--low);
+  }
+}

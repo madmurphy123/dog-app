@@ -1,0 +1,25 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+/* A large, faint paw drifting behind the whole app for flavour. */
+.app-bg {
+  position: fixed;
+  top: 42%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-12deg);
+  opacity: 0.045;
+  color: var(--plum);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.kd-scroll {
+  position: relative;
+  z-index: 1;
+}
+
+.tab {
+  animation: kd-rise 0.3s ease;
+}

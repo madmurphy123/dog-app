@@ -1,0 +1,48 @@
+:host {
+  display: inline-flex;
+}
+
+.arousal {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2.5px;
+  height: 14px;
+}
+
+.bar {
+  width: 4px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0.16;
+
+  &:nth-child(1) {
+    height: 8px;
+  }
+
+  &:nth-child(2) {
+    height: 11px;
+  }
+
+  &:nth-child(3) {
+    height: 14px;
+  }
+
+  &.filled {
+    background: var(--accent);
+    opacity: 1;
+  }
+}
+
+.label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}

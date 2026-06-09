@@ -1,0 +1,127 @@
+/* =============================================================================
+   Dog Day — design tokens. Colours authored in oklch (source of truth).
+   Palette is switched via the data-palette attribute on .kd-root.
+   Warm is the :root base; Sunset is the shipped default (set on .kd-root).
+   ============================================================================= */
+
+:root {
+  /* paper / ink */
+  --paper:        oklch(0.965 0.022 78);
+  --paper-card:   oklch(0.992 0.008 78);
+  --ink:          oklch(0.27 0.035 350);
+  --ink-soft:     oklch(0.46 0.030 345);
+  --ink-faint:    oklch(0.62 0.022 345);
+
+  /* brand */
+  --plum:         oklch(0.33 0.078 350);
+  --plum-deep:    oklch(0.255 0.060 350);
+  --plum-tint:    oklch(0.93 0.020 350);
+  --on-plum:      oklch(0.965 0.018 78);
+  --on-plum-soft: oklch(0.82 0.030 350);
+
+  /* arousal trio + walk */
+  --high:         oklch(0.655 0.180 38);
+  --high-tint:    oklch(0.93 0.045 50);
+  --med:          oklch(0.785 0.150 75);
+  --med-tint:     oklch(0.945 0.045 82);
+  --low:          oklch(0.620 0.140 285);
+  --low-tint:     oklch(0.935 0.035 290);
+  --walk:         oklch(0.585 0.075 168);
+  --walk-tint:    oklch(0.935 0.030 168);
+  --walk-deep:    oklch(0.42 0.070 168);
+
+  /* treat (surprise) + care (hygiene) */
+  --treat:        oklch(0.620 0.150 18);
+  --treat-tint:   oklch(0.930 0.050 25);
+  --care:         oklch(0.550 0.035 245);
+  --care-tint:    oklch(0.920 0.020 245);
+
+  /* gradients + neutral chip */
+  --grad-header:  linear-gradient(152deg, oklch(0.40 0.090 350) 0%, oklch(0.30 0.070 350) 100%);
+  --grad-primary: linear-gradient(135deg, oklch(0.70 0.170 48) 0%, oklch(0.63 0.180 30) 100%);
+  --chip:         oklch(0.33 0.078 350 / 0.07);
+  --nav-bg:       var(--plum);
+
+  /* hairline / focus / control surfaces derived from ink */
+  --line:         oklch(0.33 0.078 350 / 0.12);
+  --line-strong:  oklch(0.33 0.078 350 / 0.26);
+  --track:        oklch(0.33 0.078 350 / 0.18);
+
+  /* shadows (warm-tinted, low) */
+  --sh-1: 0 1px 2px oklch(0.33 0.078 350 / 0.06), 0 4px 14px oklch(0.33 0.078 350 / 0.07);
+  --sh-2: 0 2px 6px oklch(0.33 0.078 350 / 0.08), 0 14px 34px oklch(0.33 0.078 350 / 0.12);
+  --sh-plum: 0 14px 30px oklch(0.255 0.060 350 / 0.30);
+
+  /* radii */
+  --r-card: 26px;
+  --r-lg: 22px;
+  --r-md: 16px;
+  --r-pill: 999px;
+
+  /* type */
+  --font-display: 'Bricolage Grotesque', 'Hanken Grotesk', system-ui, sans-serif;
+  --font-body: 'Hanken Grotesk', system-ui, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, monospace;
+}
+
+/* Sunset — gentle warm sunset; rose → plum, apricot, dusty teal. SHIPPED DEFAULT. */
+.kd-root[data-palette='sunset'] {
+  --paper:        oklch(0.957 0.022 52);
+  --paper-card:   oklch(0.987 0.012 58);
+  --ink:          oklch(0.34 0.045 350);
+  --ink-soft:     oklch(0.50 0.040 350);
+  --ink-faint:    oklch(0.64 0.030 350);
+  --plum:         oklch(0.405 0.058 350);
+  --plum-deep:    oklch(0.320 0.050 350);
+  --plum-tint:    oklch(0.925 0.025 350);
+  --on-plum:      oklch(0.972 0.018 60);
+  --on-plum-soft: oklch(0.825 0.040 30);
+  --high:         oklch(0.660 0.135 38);
+  --high-tint:    oklch(0.930 0.045 40);
+  --med:          oklch(0.785 0.100 62);
+  --med-tint:     oklch(0.945 0.040 66);
+  --low:          oklch(0.645 0.068 330);
+  --low-tint:     oklch(0.935 0.028 332);
+  --walk:         oklch(0.605 0.052 188);
+  --walk-tint:    oklch(0.935 0.024 188);
+  --walk-deep:    oklch(0.445 0.050 192);
+  --treat:        oklch(0.665 0.115 15);
+  --treat-tint:   oklch(0.935 0.040 18);
+  --care:         oklch(0.580 0.030 50);
+  --care-tint:    oklch(0.928 0.018 52);
+  --line:         oklch(0.40 0.058 350 / 0.12);
+  --line-strong:  oklch(0.40 0.058 350 / 0.26);
+  --track:        oklch(0.40 0.058 350 / 0.18);
+  --sh-plum:      0 14px 30px oklch(0.320 0.050 350 / 0.28);
+  --grad-header:  linear-gradient(152deg, oklch(0.560 0.085 12) 0%, oklch(0.450 0.072 350) 52%, oklch(0.380 0.058 332) 100%);
+  --grad-primary: linear-gradient(135deg, oklch(0.730 0.110 52) 0%, oklch(0.640 0.140 28) 100%);
+  --chip:         oklch(0.40 0.058 350 / 0.07);
+  --nav-bg:       linear-gradient(150deg, oklch(0.445 0.068 352) 0%, oklch(0.350 0.055 338) 100%);
+}
+
+/* Dusk — calm dusk-coast: slate-navy + warm sand (no pink). Alternate theme. */
+.kd-root[data-palette='dusk'] {
+  --paper:        oklch(0.955 0.013 70);
+  --paper-card:   oklch(0.987 0.007 75);
+  --ink:          oklch(0.30 0.035 255);
+  --ink-soft:     oklch(0.47 0.030 255);
+  --ink-faint:    oklch(0.62 0.022 255);
+  --plum:         oklch(0.345 0.050 255);
+  --plum-deep:    oklch(0.275 0.045 255);
+  --plum-tint:    oklch(0.920 0.022 255);
+  --on-plum:      oklch(0.965 0.012 80);
+  --on-plum-soft: oklch(0.805 0.030 255);
+  --high:         oklch(0.645 0.125 45);
+  --high-tint:    oklch(0.930 0.045 50);
+  --med:          oklch(0.755 0.095 72);
+  --med-tint:     oklch(0.940 0.040 78);
+  --low:          oklch(0.620 0.078 250);
+  --low-tint:     oklch(0.930 0.030 250);
+  --walk:         oklch(0.600 0.062 195);
+  --walk-tint:    oklch(0.930 0.028 195);
+  --walk-deep:    oklch(0.435 0.055 200);
+  --treat:        oklch(0.645 0.115 32);
+  --treat-tint:   oklch(0.930 0.040 38);
+  --care:         oklch(0.560 0.035 245);
+  --care-tint:    oklch(0.920 0.018 245);
+}

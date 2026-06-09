@@ -1,0 +1,28 @@
+<div class="kd-root" data-palette="sunset">
+  <span class="app-bg" aria-hidden="true">
+    <app-icon name="paw" [size]="560" color="var(--plum)"></app-icon>
+  </span>
+
+  <app-toast [item]="reminder.toast$ | async" (closed)="reminder.closeToast()"></app-toast>
+
+  <div class="kd-scroll" *ngIf="vm$ | async as vm">
+    <app-header
+      [eyebrow]="vm.eyebrow"
+      [title]="vm.headerTitle"
+      [subtitle]="vm.subtitle"
+      [avatar]="vm.avatar"
+    ></app-header>
+
+    <div class="view" [ngSwitch]="vm.tab">
+      <div class="tab" *ngSwitchCase="'setup'"><app-setup-form></app-setup-form></div>
+      <div class="tab" *ngSwitchCase="'today'"><app-day-timeline></app-day-timeline></div>
+      <div class="tab" *ngSwitchCase="'week'"><app-week-planner></app-week-planner></div>
+      <div class="tab" *ngSwitchCase="'kit'"><app-kit-list></app-kit-list></div>
+    </div>
+  </div>
+
+  <app-bottom-nav
+    [value]="(planner.activeTab$ | async) || 'setup'"
+    (valueChange)="setTab($event)"
+  ></app-bottom-nav>
+</div>

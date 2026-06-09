@@ -1,0 +1,36 @@
+:host {
+  display: block;
+}
+
+.track {
+  position: relative;
+  height: 22px;
+  border-radius: var(--r-pill);
+  background: oklch(0.33 0.078 350 / 0.06);
+  overflow: hidden;
+}
+
+.tick {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: oklch(0.33 0.078 350 / 0.1);
+}
+
+.dot {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 9px;
+  height: 9px;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  box-shadow: 0 0 0 2px var(--paper-card);
+
+  &.walk {
+    width: 11px;
+    height: 11px;
+    border-radius: 4px;
+  }
+}

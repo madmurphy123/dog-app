@@ -1,0 +1,11 @@
+<div class="track">
+  <span class="tick" [style.left.%]="middayLeft"></span>
+  <span
+    class="dot"
+    *ngFor="let dot of dots; trackBy: trackByIndex"
+    [class.walk]="dot.isWalk"
+    [style.left.%]="dot.left"
+    [style.--accent]="dot.accent"
+    [attr.title]="dot.title"
+  ></span>
+</div>

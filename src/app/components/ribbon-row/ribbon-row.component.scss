@@ -1,0 +1,63 @@
+:host {
+  display: block;
+}
+
+.row {
+  padding: 11px 13px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  &.dimmed {
+    opacity: 0.5;
+  }
+}
+
+.time {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  width: 42px;
+  flex-shrink: 0;
+}
+
+.icon-tile {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--tint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: 14.5px;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &.struck {
+    text-decoration: line-through;
+  }
+}
+
+.sub {
+  font-size: 11.5px;
+  color: var(--ink-faint);
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  flex-shrink: 0;
+}

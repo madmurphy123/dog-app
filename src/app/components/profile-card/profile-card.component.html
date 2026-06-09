@@ -1,0 +1,29 @@
+<div class="profile kd-card">
+  <label class="avatar-pick">
+    <input
+      type="file"
+      accept="image/*"
+      hidden
+      aria-label="Upload a photo of your dog"
+      #fileInput
+      (change)="onFile(fileInput.files)"
+    />
+    <span class="avatar">
+      <img *ngIf="avatar$ | async as photo; else placeholder" [src]="photo" alt="Dog photo" />
+      <ng-template #placeholder>
+        <app-icon name="paw" [size]="30" color="var(--ink-faint)" [stroke]="2"></app-icon>
+      </ng-template>
+    </span>
+    <span class="pick-hint">{{ (avatar$ | async) ? 'Change' : 'Add photo' }}</span>
+  </label>
+
+  <div class="fields">
+    <div class="field-label">
+      <app-icon name="paw" [size]="15" color="var(--ink-faint)" [stroke]="2.2"></app-icon>
+      <span class="kd-eyebrow">Your dog</span>
+    </div>
+    <label class="sr-only" for="dog-name">Dog name</label>
+    <input id="dog-name" type="text" class="kd-input" [formControl]="nameControl" placeholder="Name" />
+    <button type="button" class="remove" *ngIf="avatar$ | async" (click)="removePhoto()">Remove photo</button>
+  </div>
+</div>

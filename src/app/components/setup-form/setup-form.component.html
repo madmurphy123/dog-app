@@ -1,0 +1,141 @@
+<form class="setup" [formGroup]="form">
+  <!-- dog identity -->
+  <app-profile-card></app-profile-card>
+
+  <!-- date + awake window -->
+  <section class="kd-card card">
+    <div class="field-label">
+      <app-icon name="calendar" [size]="15" color="var(--ink-faint)" [stroke]="2.2"></app-icon>
+      <span class="kd-eyebrow">The day</span>
+    </div>
+    <label class="sr-only" for="setup-date">Date</label>
+    <input id="setup-date" type="date" class="kd-input kd-mono date" formControlName="date" />
+
+    <div class="field-label">
+      <app-icon name="sun" [size]="15" color="var(--ink-faint)" [stroke]="2.2"></app-icon>
+      <span class="kd-eyebrow">Awake window</span>
+      <span class="hint">your dog’s hours</span>
+    </div>
+    <div class="window">
+      <input type="time" class="kd-input kd-mono" formControlName="dayStart" aria-label="Awake from" />
+      <span class="dash">–</span>
+      <input type="time" class="kd-input kd-mono" formControlName="dayEnd" aria-label="Awake until" />
+    </div>
+  </section>
+
+  <!-- commitments -->
+  <section class="kd-card card">
+    <div class="field-label">
+      <app-icon name="clock" [size]="15" color="var(--ink-faint)" [stroke]="2.2"></app-icon>
+      <span class="kd-eyebrow">Your commitments</span>
+      <span class="hint">{{ events.length }} blocked</span>
+    </div>
+
+    <p class="empty" *ngIf="events.length === 0">
+      Nothing booked yet — add the meetings and deep-work blocks to fit the day around.
+    </p>
+
+    <div class="rows" formArrayName="events">
+      <div
+        class="event-row"
+        *ngFor="let group of events.controls; let i = index; trackBy: trackByControl"
+        [formGroupName]="i"
+      >
+        <input type="time" class="kd-input kd-mono small" formControlName="start" aria-label="Commitment start" />
+        <input type="time" class="kd-input kd-mono small" formControlName="end" aria-label="Commitment end" />
+        <input type="text" class="kd-input grow" formControlName="label" aria-label="Commitment label" placeholder="Label" />
+        <button type="button" class="kd-btn icon-btn" (click)="removeEvent(i)" aria-label="Remove commitment">
+          <app-icon name="trash" [size]="17" [stroke]="2"></app-icon>
+        </button>
+      </div>
+    </div>
+
+    <button type="button" class="kd-btn kd-btn-ghost full" (click)="addEvent()">
+      <app-icon name="plus" [size]="17" [stroke]="2.4"></app-icon> Add commitment
+    </button>
+  </section>
+
+  <!-- walks -->
+  <section class="kd-card card">
+    <div class="field-label">
+      <app-icon name="walk" [size]="15" color="var(--ink-faint)" [stroke]="2.2"></app-icon>
+      <span class="kd-eyebrow">Walk times</span>
+      <span class="hint">fixed points in the day</span>
+    </div>
+
+    <div class="chips" *ngIf="walks.length" formArrayName="walks">
+      <span
+        class="chip walk-chip"
+        *ngFor="let group of walks.controls; let i = index; trackBy: trackByControl"
+      >
+        <app-icon name="walk" [size]="15" color="var(--walk)" [stroke]="2.2"></app-icon>
+        <span class="kd-mono time">{{ group.controls.time.value }}</span>
+        <button type="button" class="kd-btn chip-x" (click)="removeWalk(i)" aria-label="Remove walk">
+          <app-icon name="close" [size]="13" [stroke]="2.6"></app-icon>
+        </button>
+      </span>
+    </div>
+
+    <div class="add-walk">
+      <input type="time" class="kd-input kd-mono grow" [formControl]="newWalk" aria-label="New walk time" />
+      <button type="button" class="kd-btn kd-btn-ghost" (click)="addWalk()">
+        <app-icon name="plus" [size]="17" [stroke]="2.4"></app-icon> Add walk
+      </button>
+    </div>
+  </section>
+
+  <!-- day care -->
+  <button
+    type="button"
+    class="kd-card toggle-card"
+    [class.on-care]="planner.isDayCare$ | async"
+    (click)="planner.toggleDayCare()"
+  >
+    <span class="toggle-icon care" [class.active]="planner.isDayCare$ | async">
+      <app-icon name="pin" [size]="21" [color]="(planner.isDayCare$ | async) ? '#fff' : 'var(--ink-faint)'" [stroke]="2.1"></app-icon>
+    </span>
+    <span class="toggle-body">
+      <span class="kd-display toggle-title">At doggy day care</span>
+      <span class="toggle-sub">Block the whole day — out having fun.</span>
+    </span>
+    <span class="switch care" [class.on]="planner.isDayCare$ | async" aria-hidden="true"><span class="knob"></span></span>
+  </button>
+
+  <!-- treats -->
+  <button type="button" class="kd-card toggle-card" (click)="planner.toggleTreats()">
+    <span class="toggle-icon treat" [class.active]="planner.treats$ | async">
+      <app-icon name="gift" [size]="21" [color]="(planner.treats$ | async) ? '#fff' : 'var(--ink-faint)'" [stroke]="2.1"></app-icon>
+    </span>
+    <span class="toggle-body">
+      <span class="kd-display toggle-title">Treat days</span>
+      <span class="toggle-sub">Sprinkle the occasional surprise into the week.</span>
+    </span>
+    <span class="switch treat" [class.on]="planner.treats$ | async" aria-hidden="true"><span class="knob"></span></span>
+  </button>
+
+  <!-- reminders -->
+  <button
+    type="button"
+    class="kd-card toggle-card"
+    (click)="planner.toggleReminders()"
+  >
+    <span class="toggle-icon high" [class.active]="planner.reminders$ | async">
+      <app-icon
+        [name]="(planner.reminders$ | async) ? 'bell' : 'bellOff'"
+        [size]="21"
+        [color]="(planner.reminders$ | async) ? 'var(--high)' : 'var(--ink-faint)'"
+        [stroke]="2.1"
+      ></app-icon>
+    </span>
+    <span class="toggle-body">
+      <span class="kd-display toggle-title">Shoulder taps</span>
+      <span class="toggle-sub">A toast + chime at each prompt’s time.</span>
+    </span>
+    <span class="switch high" [class.on]="planner.reminders$ | async" aria-hidden="true"><span class="knob"></span></span>
+  </button>
+
+  <!-- build -->
+  <button type="button" class="kd-btn kd-btn-primary build" (click)="build()">
+    <app-icon name="sparkle" [size]="19" color="#fff" [stroke]="2.2"></app-icon> Build the day
+  </button>
+</form>
